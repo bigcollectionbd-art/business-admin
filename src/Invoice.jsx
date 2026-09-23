@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import * as XLSX from "xlsx";
 import { supabase } from "./supabase";
 import "./Invoice.css";
 
@@ -25,6 +26,7 @@ function Invoice() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadInvoices();
@@ -89,6 +91,204 @@ function Invoice() {
     setDetailLoading(false);
   }
 
+  async function exportExcel() {
+    if (exporting) return;
+
+    setExporting(true);
+
+    try {
+      const { data: salesData, error: salesError } = await supabase
+        .from("sales")
+        .select(`
+          id,
+          invoice_no,
+          sale_date,
+          subtotal,
+          discount,
+          total,
+          paid,
+          due,
+          payment_method,
+          status,
+          notes,
+          customers (
+            name,
+            phone,
+            email,
+            address
+          )
+        `)
+        .order("sale_date", { ascending: false });
+
+      if (salesError) {
+        throw new Error(salesError.message);
+      }
+
+      const saleIds = (salesData || []).map((sale) => sale.id);
+
+      let itemsData = [];
+
+      if (saleIds.length > 0) {
+        const { data, error: itemsError } = await supabase
+          .from("sale_items")
+          .select(`
+            sale_id,
+            product_id,
+            product_name,
+            quantity,
+            unit_price,
+            total,
+            created_at
+          `)
+          .in("sale_id", saleIds)
+          .order("created_at", { ascending: true });
+
+        if (itemsError) {
+          throw new Error(itemsError.message);
+        }
+
+        itemsData = data || [];
+      }
+
+      const { data: customersData, error: customersError } =
+        await supabase
+          .from("customers")
+          .select(`
+            id,
+            name,
+            phone,
+            email,
+            address,
+            created_at
+          `)
+          .order("created_at", { ascending: false });
+
+      if (customersError) {
+        throw new Error(customersError.message);
+      }
+
+      const { data: paymentsData, error: paymentsError } =
+        await supabase
+          .from("payments")
+          .select(`
+            id,
+            sale_id,
+            customer_id,
+            amount,
+            payment_method,
+            payment_date,
+            notes,
+            created_at
+          `)
+          .order("payment_date", { ascending: false });
+
+      if (paymentsError) {
+        throw new Error(paymentsError.message);
+      }
+
+      const { data: expensesData, error: expensesError } =
+        await supabase
+          .from("expenses")
+          .select(`
+            id,
+            title,
+            category,
+            amount,
+            expense_date,
+            notes,
+            created_at
+          `)
+          .order("expense_date", { ascending: false });
+
+      if (expensesError) {
+        throw new Error(expensesError.message);
+      }
+
+      const salesRows = (salesData || []).map((sale) => ({
+        "Invoice No": sale.invoice_no || "",
+        "Date": formatDate(sale.sale_date),
+        "Customer Name": sale.customers?.name || "Walk-in Customer",
+        "Phone": sale.customers?.phone || "",
+        "Email": sale.customers?.email || "",
+        "Address": sale.customers?.address || "",
+        "Subtotal": Number(sale.subtotal || 0),
+        "Discount": Number(sale.discount || 0),
+        "Grand Total": Number(sale.total || 0),
+        "Paid": Number(sale.paid || 0),
+        "Due": Number(sale.due || 0),
+        "Payment Method": sale.payment_method || "",
+        "Status": sale.status || "",
+        "Notes": sale.notes || "",
+      }));
+
+      const itemRows = itemsData.map((item) => {
+        const sale = (salesData || []).find(
+          (saleItem) => saleItem.id === item.sale_id
+        );
+
+        return {
+          "Invoice No": sale?.invoice_no || "",
+          "Invoice Date": sale ? formatDate(sale.sale_date) : "",
+          "Product Name": item.product_name || "",
+          Quantity: Number(item.quantity || 0),
+          "Unit Price": Number(item.unit_price || 0),
+          "Total Price": Number(item.total || 0),
+        };
+      });
+
+      const customerRows = (customersData || []).map((customer) => ({
+        "Customer Name": customer.name || "",
+        Phone: customer.phone || "",
+        Email: customer.email || "",
+        Address: customer.address || "",
+        "Created Date": formatDate(customer.created_at),
+      }));
+
+      const paymentRows = (paymentsData || []).map((payment) => ({
+        "Payment Date": formatDate(payment.payment_date),
+        "Invoice ID": payment.sale_id || "",
+        "Customer ID": payment.customer_id || "",
+        Amount: Number(payment.amount || 0),
+        "Payment Method": payment.payment_method || "",
+        Notes: payment.notes || "",
+      }));
+
+      const expenseRows = (expensesData || []).map((expense) => ({
+        "Expense Date": expense.expense_date || "",
+        Title: expense.title || "",
+        Category: expense.category || "",
+        Amount: Number(expense.amount || 0),
+        Notes: expense.notes || "",
+      }));
+
+      const workbook = XLSX.utils.book_new();
+
+      const salesSheet = XLSX.utils.json_to_sheet(salesRows);
+      const itemsSheet = XLSX.utils.json_to_sheet(itemRows);
+      const customersSheet = XLSX.utils.json_to_sheet(customerRows);
+      const paymentsSheet = XLSX.utils.json_to_sheet(paymentRows);
+      const expensesSheet = XLSX.utils.json_to_sheet(expenseRows);
+
+      XLSX.utils.book_append_sheet(workbook, salesSheet, "Sales History");
+      XLSX.utils.book_append_sheet(workbook, itemsSheet, "Sale Items");
+      XLSX.utils.book_append_sheet(workbook, customersSheet, "Customers");
+      XLSX.utils.book_append_sheet(workbook, paymentsSheet, "Payments");
+      XLSX.utils.book_append_sheet(workbook, expensesSheet, "Expenses");
+
+      XLSX.writeFile(
+        workbook,
+        `Big-Collection-BD-Backup-${new Date()
+          .toISOString()
+          .slice(0, 10)}.xlsx`
+      );
+    } catch (error) {
+      console.error("Excel export error:", error);
+      alert("Excel export failed: " + error.message);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   function closeInvoice() {
     setSelectedSale(null);
     setItems([]);
@@ -109,7 +309,6 @@ function Invoice() {
 
     return (
       <div className="invoice-page">
-
         <div className="invoice-actions no-print">
           <button
             className="secondary-button"
@@ -132,9 +331,7 @@ function Invoice() {
           </div>
         ) : (
           <div className="invoice-paper">
-
             <div className="invoice-header">
-
               <div className="company-area">
                 <div className="company-name">
                   Big Collection BD
@@ -172,11 +369,9 @@ function Invoice() {
                   Scan to Follow us on Facebook
                 </div>
               </div>
-
             </div>
 
             <div className="invoice-info-grid">
-
               <div className="invoice-to">
                 <div className="box-title">
                   INVOICE TO
@@ -245,11 +440,9 @@ function Invoice() {
                   Selected : {selectedSale.payment_method || "cash"}
                 </div>
               </div>
-
             </div>
 
             <table className="invoice-table">
-
               <thead>
                 <tr>
                   <th className="sl-column">SL</th>
@@ -261,7 +454,6 @@ function Invoice() {
               </thead>
 
               <tbody>
-
                 {items.map((item, index) => (
                   <tr key={item.id}>
                     <td className="center">
@@ -299,13 +491,10 @@ function Invoice() {
                     <td></td>
                   </tr>
                 ))}
-
               </tbody>
-
             </table>
 
             <div className="summary-section">
-
               <div className="summary-row">
                 <span>Sub Total</span>
                 <strong>
@@ -326,11 +515,9 @@ function Invoice() {
                   {money(selectedSale.total)}
                 </strong>
               </div>
-
             </div>
 
             <div className="invoice-bottom">
-
               <div className="terms-section">
                 <div className="terms-title">
                   Terms & Conditions
@@ -360,11 +547,9 @@ function Invoice() {
                   Authorized Signature
                 </div>
               </div>
-
             </div>
 
             <div className="invoice-footer">
-
               <div className="thanks">
                 🛒 Thanks for choosing Big Collection BD 🛒
               </div>
@@ -373,21 +558,16 @@ function Invoice() {
                 আপনাদের একটি রিভিউ আমাদের অনুপ্রেরণা দেয়,অনুগ্রহ করে
                 আপনার একটি রিভিউ আমাদের ইনবক্সে পাঠান
               </div>
-
             </div>
-
           </div>
         )}
-
       </div>
     );
   }
 
   return (
     <div className="invoice-page">
-
       <div className="invoice-list-card">
-
         <div className="invoice-list-header">
           <div>
             <h2>Invoices</h2>
@@ -396,8 +576,18 @@ function Invoice() {
             </p>
           </div>
 
-          <div className="invoice-count">
-            {sales.length} Invoice{sales.length !== 1 ? "s" : ""}
+          <div className="invoice-header-actions">
+            <button
+              className="export-excel-button no-print"
+              onClick={exportExcel}
+              disabled={exporting}
+            >
+              {exporting ? "Exporting..." : "Export Excel"}
+            </button>
+
+            <div className="invoice-count">
+              {sales.length} Invoice{sales.length !== 1 ? "s" : ""}
+            </div>
           </div>
         </div>
 
@@ -407,7 +597,6 @@ function Invoice() {
           </div>
         ) : (
           <div className="invoice-list-table">
-
             <div className="invoice-list-row invoice-list-heading">
               <div>Invoice No</div>
               <div>Date</div>
@@ -465,12 +654,9 @@ function Invoice() {
                 </div>
               );
             })}
-
           </div>
         )}
-
       </div>
-
     </div>
   );
 }

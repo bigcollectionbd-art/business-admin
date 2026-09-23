@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -19,6 +19,7 @@ import Dashboard from "./Dashboard";
 import Sales from "./Sales";
 import Invoice from "./Invoice";
 import Products from "./Products";
+import SettingsPage from "./Settings";
 import "./App.css";
 
 function App() {
@@ -87,11 +88,7 @@ function App() {
 
         <nav>
           <button
-            className={
-              page === "dashboard"
-                ? "nav-item active"
-                : "nav-item"
-            }
+            className={page === "dashboard" ? "nav-item active" : "nav-item"}
             onClick={() => setPage("dashboard")}
           >
             <LayoutDashboard size={20} />
@@ -99,11 +96,7 @@ function App() {
           </button>
 
           <button
-            className={
-              page === "sales"
-                ? "nav-item active"
-                : "nav-item"
-            }
+            className={page === "sales" ? "nav-item active" : "nav-item"}
             onClick={() => setPage("sales")}
           >
             <ShoppingCart size={20} />
@@ -111,11 +104,7 @@ function App() {
           </button>
 
           <button
-            className={
-              page === "invoice"
-                ? "nav-item active"
-                : "nav-item"
-            }
+            className={page === "invoice" ? "nav-item active" : "nav-item"}
             onClick={() => setPage("invoice")}
           >
             <FileText size={20} />
@@ -123,11 +112,7 @@ function App() {
           </button>
 
           <button
-            className={
-              page === "products"
-                ? "nav-item active"
-                : "nav-item"
-            }
+            className={page === "products" ? "nav-item active" : "nav-item"}
             onClick={() => setPage("products")}
           >
             <Package size={20} />
@@ -149,7 +134,10 @@ function App() {
             Reports
           </button>
 
-          <button className="nav-item">
+          <button
+            className={page === "settings" ? "nav-item active" : "nav-item"}
+            onClick={() => setPage("settings")}
+          >
             <Settings size={20} />
             Settings
           </button>
@@ -173,11 +161,7 @@ function App() {
             className="menu-button"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            {menuOpen ? (
-              <X size={22} />
-            ) : (
-              <Menu size={22} />
-            )}
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
           <div>
@@ -190,6 +174,8 @@ function App() {
                 ? "Invoice"
                 : page === "products"
                 ? "Products"
+                : page === "settings"
+                ? "Settings"
                 : "Dashboard"}
             </h1>
 
@@ -202,6 +188,8 @@ function App() {
                 ? "View and print invoice"
                 : page === "products"
                 ? "Manage product stock and inventory"
+                : page === "settings"
+                ? "Manage your business information"
                 : ""}
             </p>
           </div>
@@ -211,6 +199,7 @@ function App() {
         {page === "sales" && <Sales />}
         {page === "invoice" && <Invoice />}
         {page === "products" && <Products />}
+        {page === "settings" && <SettingsPage />}
       </main>
     </div>
   );

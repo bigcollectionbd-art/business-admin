@@ -1,5 +1,5 @@
 ﻿import { useState } from "react";
-import { Save, Settings as SettingsIcon } from "lucide-react";
+import { Save } from "lucide-react";
 import "./Settings.css";
 
 function Settings() {
@@ -33,46 +33,49 @@ function Settings() {
 
   return (
     <div className="settings-page">
-      <div className="settings-header">
-        <div>
-          <h1>Settings</h1>
-          <p>Manage your business information</p>
-        </div>
-
-        <SettingsIcon size={28} />
-      </div>
-
       <form className="settings-form" onSubmit={handleSave}>
         <div className="settings-section">
           <h2>Business Information</h2>
 
-          <label>Business Name</label>
-          <input
-            type="text"
-            value={companyName}
-            onChange={(event) => setCompanyName(event.target.value)}
-          />
+          <div className="settings-field">
+            <label htmlFor="companyName">Business Name</label>
+            <input
+              id="companyName"
+              type="text"
+              value={companyName}
+              onChange={(event) => setCompanyName(event.target.value)}
+            />
+          </div>
 
-          <label>Phone Number</label>
-          <input
-            type="text"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-          />
+          <div className="settings-field">
+            <label htmlFor="phone">Phone Number</label>
+            <input
+              id="phone"
+              type="text"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+            />
+          </div>
 
-          <label>Website</label>
-          <input
-            type="text"
-            value={website}
-            onChange={(event) => setWebsite(event.target.value)}
-          />
+          <div className="settings-field">
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              type="text"
+              value={website}
+              onChange={(event) => setWebsite(event.target.value)}
+            />
+          </div>
 
-          <label>Address</label>
-          <textarea
-            rows="4"
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-          />
+          <div className="settings-field">
+            <label htmlFor="address">Address</label>
+            <textarea
+              id="address"
+              rows="4"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+            />
+          </div>
         </div>
 
         <button className="settings-save-button" type="submit">

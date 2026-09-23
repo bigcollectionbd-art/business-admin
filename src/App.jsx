@@ -55,6 +55,10 @@ function App() {
     await supabase.auth.signOut();
   }
 
+  function handlePageChange(nextPage) {
+    setPage(nextPage);
+  }
+
   if (checkingAuth) {
     return (
       <div
@@ -75,11 +79,34 @@ function App() {
     return <Login onLogin={() => {}} />;
   }
 
+  const pageTitle =
+    page === "dashboard"
+      ? "Dashboard"
+      : page === "sales"
+      ? "Sales"
+      : page === "invoice"
+      ? "Invoice"
+      : page === "products"
+      ? "Products"
+      : "";
+
+  const pageSubtitle =
+    page === "dashboard"
+      ? "Welcome to your business admin panel"
+      : page === "sales"
+      ? "Create a new sale"
+      : page === "invoice"
+      ? "View and print invoice"
+      : page === "products"
+      ? "Manage product stock and inventory"
+      : "";
+
   return (
     <div className="admin-app">
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="logo">
           <div className="logo-icon">B</div>
+
           <div>
             <strong>Business Admin</strong>
             <span>Management System</span>
@@ -88,32 +115,48 @@ function App() {
 
         <nav>
           <button
-            className={page === "dashboard" ? "nav-item active" : "nav-item"}
-            onClick={() => setPage("dashboard")}
+            className={
+              page === "dashboard"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("dashboard")}
           >
             <LayoutDashboard size={20} />
             Dashboard
           </button>
 
           <button
-            className={page === "sales" ? "nav-item active" : "nav-item"}
-            onClick={() => setPage("sales")}
+            className={
+              page === "sales"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("sales")}
           >
             <ShoppingCart size={20} />
             Sales
           </button>
 
           <button
-            className={page === "invoice" ? "nav-item active" : "nav-item"}
-            onClick={() => setPage("invoice")}
+            className={
+              page === "invoice"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("invoice")}
           >
             <FileText size={20} />
             Invoices
           </button>
 
           <button
-            className={page === "products" ? "nav-item active" : "nav-item"}
-            onClick={() => setPage("products")}
+            className={
+              page === "products"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("products")}
           >
             <Package size={20} />
             Products
@@ -135,8 +178,12 @@ function App() {
           </button>
 
           <button
-            className={page === "settings" ? "nav-item active" : "nav-item"}
-            onClick={() => setPage("settings")}
+            className={
+              page === "settings"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("settings")}
           >
             <Settings size={20} />
             Settings
@@ -156,44 +203,40 @@ function App() {
       </aside>
 
       <main className="main-content">
-        <header className="topbar">
-          <button
-            className="menu-button"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+        {page !== "settings" && (
+          <header className="topbar">
+            <button
+              className="menu-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? (
+                <X size={22} />
+              ) : (
+                <Menu size={22} />
+              )}
+            </button>
 
-          <div>
-            <h1>
-              {page === "dashboard"
-                ? "Dashboard"
-                : page === "sales"
-                ? "Sales"
-                : page === "invoice"
-                ? "Invoice"
-                : page === "products"
-                ? "Products"
-                : page === "settings"
-                ? "Settings"
-                : "Dashboard"}
-            </h1>
+            <div>
+              <h1>{pageTitle}</h1>
+              <p>{pageSubtitle}</p>
+            </div>
+          </header>
+        )}
 
-            <p>
-              {page === "dashboard"
-                ? "Welcome to your business admin panel"
-                : page === "sales"
-                ? "Create a new sale"
-                : page === "invoice"
-                ? "View and print invoice"
-                : page === "products"
-                ? "Manage product stock and inventory"
-                : page === "settings"
-                ? "Manage your business information"
-                : ""}
-            </p>
+        {page === "settings" && (
+          <div className="settings-topbar">
+            <button
+              className="menu-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? (
+                <X size={22} />
+              ) : (
+                <Menu size={22} />
+              )}
+            </button>
           </div>
-        </header>
+        )}
 
         {page === "dashboard" && <Dashboard />}
         {page === "sales" && <Sales />}

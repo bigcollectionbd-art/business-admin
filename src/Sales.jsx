@@ -18,6 +18,35 @@ function Sales() {
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [saving, setSaving] = useState(false);
 
+  async function generateInvoiceNo() {
+    const { data, error } = await supabase
+      .from("sales")
+      .select("invoice_no");
+
+    if (error) {
+      console.error("Invoice number error:", error);
+      setInvoiceNo("BCB-10422");
+      return;
+    }
+
+    let highestNumber = 10421;
+
+    for (const sale of data || []) {
+      const invoice = String(sale.invoice_no || "").trim();
+      const match = invoice.match(/^BCB-(\d+)$/);
+
+      if (match) {
+        const number = Number(match[1]);
+
+        if (number > highestNumber) {
+          highestNumber = number;
+        }
+      }
+    }
+
+    setInvoiceNo(`BCB-${highestNumber + 1}`);
+  }
+
   useEffect(() => {
     async function loadProducts() {
       const { data, error } = await supabase
@@ -34,6 +63,7 @@ function Sales() {
     }
 
     loadProducts();
+    generateInvoiceNo();
   }, []);
 
   const filteredProducts = useMemo(() => {
@@ -184,6 +214,29 @@ function Sales() {
     setSaving(true);
 
     try {
+      const cleanInvoiceNo = invoiceNo.trim();
+
+      const { data: existingInvoice, error: invoiceCheckError } =
+        await supabase
+          .from("sales")
+          .select("id")
+          .eq("invoice_no", cleanInvoiceNo)
+          .maybeSingle();
+
+      if (invoiceCheckError) {
+        alert(
+          `Invoice check failed: ${invoiceCheckError.message}`
+        );
+        return;
+      }
+
+      if (existingInvoice) {
+        alert(
+          `Invoice ${cleanInvoiceNo} already exists. Please use another invoice number.`
+        );
+        return;
+      }
+
       const { data: customer, error: customerError } =
         await supabase
           .from("customers")
@@ -196,10 +249,7 @@ function Sales() {
           .single();
 
       if (customerError) {
-        console.error(
-          "Customer error:",
-          customerError
-        );
+        console.error("Customer error:", customerError);
 
         alert(
           `Customer save failed: ${customerError.message}`
@@ -207,8 +257,6 @@ function Sales() {
 
         return;
       }
-
-      const cleanInvoiceNo = invoiceNo.trim();
 
       const { data: sale, error: saleError } =
         await supabase
@@ -231,6 +279,11 @@ function Sales() {
       if (saleError) {
         console.error("Sale error:", saleError);
 
+        await supabase
+          .from("customers")
+          .delete()
+          .eq("id", customer.id);
+
         alert(
           `Sale save failed: ${saleError.message}`
         );
@@ -243,9 +296,7 @@ function Sales() {
         product_id: item.id,
         product_name: item.name,
         quantity: Number(item.quantity || 0),
-        unit_price: Number(
-          item.selling_price || 0
-        ),
+        unit_price: Number(item.selling_price || 0),
         total:
           Number(item.selling_price || 0) *
           Number(item.quantity || 0),
@@ -257,10 +308,7 @@ function Sales() {
           .insert(saleItems);
 
       if (itemError) {
-        console.error(
-          "Sale items error:",
-          itemError
-        );
+        console.error("Sale items error:", itemError);
 
         await supabase
           .from("sales")
@@ -305,13 +353,14 @@ function Sales() {
       );
 
       setCart([]);
-      setInvoiceNo("");
       setCustomerName("");
       setCustomerPhone("");
       setCustomerAddress("");
       setDiscount(0);
       setPaid(0);
       setPaymentMethod("cash");
+
+      await generateInvoiceNo();
 
       const { data: updatedProducts } =
         await supabase
@@ -449,7 +498,7 @@ function Sales() {
 
                 <input
                   type="text"
-                  placeholder="Enter invoice number"
+                  placeholder="Invoice number"
                   value={invoiceNo}
                   onChange={(e) =>
                     setInvoiceNo(e.target.value)

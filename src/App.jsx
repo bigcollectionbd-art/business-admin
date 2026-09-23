@@ -19,6 +19,7 @@ import Dashboard from "./Dashboard";
 import Sales from "./Sales";
 import Invoice from "./Invoice";
 import Products from "./Products";
+import Customers from "./Customers";
 import SettingsPage from "./Settings";
 import "./App.css";
 
@@ -88,6 +89,8 @@ function App() {
       ? "Invoice"
       : page === "products"
       ? "Products"
+      : page === "customers"
+      ? "Customers"
       : "";
 
   const pageSubtitle =
@@ -99,6 +102,8 @@ function App() {
       ? "View and print invoice"
       : page === "products"
       ? "Manage product stock and inventory"
+      : page === "customers"
+      ? "Manage your customers"
       : "";
 
   return (
@@ -162,7 +167,14 @@ function App() {
             Products
           </button>
 
-          <button className="nav-item">
+          <button
+            className={
+              page === "customers"
+                ? "nav-item active"
+                : "nav-item"
+            }
+            onClick={() => handlePageChange("customers")}
+          >
             <Users size={20} />
             Customers
           </button>
@@ -209,11 +221,7 @@ function App() {
               className="menu-button"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? (
-                <X size={22} />
-              ) : (
-                <Menu size={22} />
-              )}
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
             <div>
@@ -229,11 +237,7 @@ function App() {
               className="menu-button"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? (
-                <X size={22} />
-              ) : (
-                <Menu size={22} />
-              )}
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         )}
@@ -242,6 +246,7 @@ function App() {
         {page === "sales" && <Sales />}
         {page === "invoice" && <Invoice />}
         {page === "products" && <Products />}
+        {page === "customers" && <Customers />}
         {page === "settings" && <SettingsPage />}
       </main>
     </div>

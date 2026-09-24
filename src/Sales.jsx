@@ -727,8 +727,8 @@ function Sales() {
                   )
                 }
               >
-                <option value="cash">
-                  Cash
+                <option value="Cash On Delivery">
+                  Cash On Delivery
                 </option>
 
                 <option value="bkash">
@@ -743,8 +743,8 @@ function Sales() {
                   Bank
                 </option>
 
-                <option value="card">
-                  Card
+                <option value="cash">
+                  cash
                 </option>
               </select>
 

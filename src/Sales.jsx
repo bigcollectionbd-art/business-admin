@@ -1,4 +1,4 @@
-﻿import "./Sales.css";
+import "./Sales.css";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Trash2, Plus, Minus } from "lucide-react";
 import { supabase } from "./supabase";
@@ -15,7 +15,7 @@ function Sales() {
 
   const [discount, setDiscount] = useState(0);
   const [paid, setPaid] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState("Cash On Delivery");
   const [saving, setSaving] = useState(false);
 
   async function generateInvoiceNo() {
@@ -358,7 +358,7 @@ function Sales() {
       setCustomerAddress("");
       setDiscount(0);
       setPaid(0);
-      setPaymentMethod("cash");
+      setPaymentMethod("Cash On Delivery");
 
       await generateInvoiceNo();
 
@@ -776,7 +776,7 @@ function PackageIcon() {
         opacity: 0.5,
       }}
     >
-      📦
+      ??
     </div>
   );
 }
@@ -789,9 +789,10 @@ function ShoppingCartIcon() {
         marginBottom: "8px",
       }}
     >
-      🛒
+      ??
     </div>
   );
 }
 
 export default Sales;
+

@@ -471,96 +471,6 @@ function Sales() {
               )}
 
             </div>
-          </div>
-        </div>
-
-        <div className="cart-section">
-
-          <div className="sales-card">
-
-            <div className="sales-card-header">
-              <div>
-                <h2>New Sale</h2>
-                <p>
-                  Customer and order details
-                </p>
-              </div>
-            </div>
-
-            <div className="customer-form">
-
-              <div className="form-title">
-                Sale Information
-              </div>
-
-              <div className="form-group">
-                <label>Invoice No *</label>
-
-                <input
-                  type="text"
-                  placeholder="Invoice number"
-                  value={invoiceNo}
-                  onChange={(e) =>
-                    setInvoiceNo(e.target.value)
-                  }
-                />
-              </div>
-
-              <div className="form-title">
-                Customer Information
-              </div>
-
-              <div className="form-group">
-                <label>
-                  Customer Name *
-                </label>
-
-                <input
-                  type="text"
-                  placeholder="Enter customer name"
-                  value={customerName}
-                  onChange={(e) =>
-                    setCustomerName(
-                      e.target.value
-                    )
-                  }
-                />
-              </div>
-
-              <div className="form-row">
-
-                <div className="form-group">
-                  <label>Phone</label>
-
-                  <input
-                    type="text"
-                    placeholder="017XXXXXXXX"
-                    value={customerPhone}
-                    onChange={(e) =>
-                      setCustomerPhone(
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Address</label>
-
-                  <input
-                    type="text"
-                    placeholder="Customer address"
-                    value={customerAddress}
-                    onChange={(e) =>
-                      setCustomerAddress(
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-
-              </div>
-            </div>
 
             <div className="cart-title">
               Cart ({cart.length})
@@ -655,6 +565,96 @@ function Sales() {
                 ))
               )}
 
+            </div>
+          </div>
+        </div>
+
+        <div className="cart-section">
+
+          <div className="sales-card">
+
+            <div className="sales-card-header">
+              <div>
+                <h2>New Sale</h2>
+                <p>
+                  Customer and order details
+                </p>
+              </div>
+            </div>
+
+            <div className="customer-form">
+
+              <div className="form-title">
+                Sale Information
+              </div>
+
+              <div className="form-group">
+                <label>Invoice No *</label>
+
+                <input
+                  type="text"
+                  placeholder="Invoice number"
+                  value={invoiceNo}
+                  onChange={(e) =>
+                    setInvoiceNo(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="form-title">
+                Customer Information
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Customer Name *
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Enter customer name"
+                  value={customerName}
+                  onChange={(e) =>
+                    setCustomerName(
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="form-row">
+
+                <div className="form-group">
+                  <label>Phone</label>
+
+                  <input
+                    type="text"
+                    placeholder="017XXXXXXXX"
+                    value={customerPhone}
+                    onChange={(e) =>
+                      setCustomerPhone(
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Address</label>
+
+                  <input
+                    type="text"
+                    placeholder="Customer address"
+                    value={customerAddress}
+                    onChange={(e) =>
+                      setCustomerAddress(
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+              </div>
             </div>
 
             <div className="sale-summary">
@@ -795,4 +795,5 @@ function ShoppingCartIcon() {
 }
 
 export default Sales;
+
 

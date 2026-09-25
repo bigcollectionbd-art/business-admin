@@ -1,4 +1,4 @@
-import "./Sales.css";
+﻿import "./Sales.css";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Trash2, Plus, Minus } from "lucide-react";
 import { supabase } from "./supabase";
@@ -7,6 +7,9 @@ function Sales() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState([]);
+  const [variationProduct, setVariationProduct] = useState(null);
+  const [variations, setVariations] = useState([]);
+  const [loadingVariations, setLoadingVariations] = useState(false);
 
   const [invoiceNo, setInvoiceNo] = useState("");
   const [customerName, setCustomerName] = useState("");
@@ -51,7 +54,7 @@ function Sales() {
     async function loadProducts() {
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, sku, selling_price, stock_qty, image_url")
+        .select("id, name, sku, woo_product_id, selling_price, stock_qty, image_url")
         .order("name");
 
       if (error) {
@@ -82,7 +85,44 @@ function Sales() {
       .slice(0, 10);
   }, [products, search]);
 
-  function addToCart(product) {
+  async function addToCart(product) {
+    if (Number(product.selling_price || 0) === 0) {
+      setLoadingVariations(true);
+
+      try {
+        const { data, error } =
+          await supabase.functions.invoke(
+            "get-woo-variations",
+            {
+              body: {
+                productId: product.woo_product_id,
+              },
+            }
+          );
+
+        if (error) {
+          console.error("Variation fetch error:", error);
+          alert("Could not load product variations.");
+          return;
+        }
+
+        if (!data?.variations?.length) {
+          alert("No variations found for this product.");
+          return;
+        }
+
+        setVariationProduct(product);
+        setVariations(data.variations);
+      } catch (error) {
+        console.error("Variation error:", error);
+        alert(`Could not load variations: ${error.message}`);
+      } finally {
+        setLoadingVariations(false);
+      }
+
+      return;
+    }
+
     setCart((currentCart) => {
       const existing = currentCart.find(
         (item) => item.id === product.id
@@ -111,6 +151,7 @@ function Sales() {
         ...currentCart,
         {
           ...product,
+          productId: product.id,
           quantity: 1,
         },
       ];
@@ -119,6 +160,67 @@ function Sales() {
     setSearch("");
   }
 
+  function addVariationToCart(variation) {
+    if (!variationProduct) {
+      return;
+    }
+
+    const variationLabel =
+      variation.attributes
+        ?.map((attribute) => attribute.option)
+        .filter(Boolean)
+        .join(" / ") || "Default";
+
+    const cartId =
+      `${variationProduct.id}-${variation.id}`;
+
+    setCart((currentCart) => {
+      const existing = currentCart.find(
+        (item) => item.id === cartId
+      );
+
+      if (existing) {
+        if (
+          existing.quantity >=
+          Number(variation.stock_quantity || 0)
+        ) {
+          alert("Not enough stock available.");
+          return currentCart;
+        }
+
+        return currentCart.map((item) =>
+          item.id === cartId
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+              }
+            : item
+        );
+      }
+
+      return [
+        ...currentCart,
+        {
+          id: cartId,
+          productId: variationProduct.id,
+          name: `${variationProduct.name} - ${variationLabel}`,
+          sku: variationProduct.sku,
+          image_url: variationProduct.image_url,
+          selling_price: Number(variation.price || 0),
+          stock_qty: Number(
+            variation.stock_quantity || 0
+          ),
+          quantity: 1,
+          variationId: variation.id,
+          variationLabel,
+        },
+      ];
+    });
+
+    setVariationProduct(null);
+    setVariations([]);
+    setSearch("");
+  }
   function increaseQuantity(id) {
     setCart((currentCart) =>
       currentCart.map((item) => {
@@ -293,7 +395,7 @@ function Sales() {
 
       const saleItems = cart.map((item) => ({
         sale_id: sale.id,
-        product_id: item.id,
+        product_id: item.productId || item.id,
         product_name: item.name,
         quantity: Number(item.quantity || 0),
         unit_price: Number(item.selling_price || 0),
@@ -328,6 +430,9 @@ function Sales() {
       }
 
       for (const item of cart) {
+        if (item.variationId) {
+          continue;
+        }
         const newStock =
           Number(item.stock_qty || 0) -
           Number(item.quantity || 0);
@@ -366,7 +471,7 @@ function Sales() {
         await supabase
           .from("products")
           .select(
-            "id, name, sku, selling_price, stock_qty, image_url"
+            "id, name, sku, woo_product_id, selling_price, stock_qty, image_url"
           )
           .order("name");
 
@@ -387,7 +492,82 @@ function Sales() {
 
   return (
     <div className="sales-page">
-      <div className="sales-grid">
+      {variationProduct && (
+      <div className="variation-overlay">
+        <div className="variation-modal">
+          <div className="variation-modal-header">
+            <div>
+              <h3>Select Variation</h3>
+              <p>{variationProduct.name}</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setVariationProduct(null);
+                setVariations([]);
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="variation-list">
+            {variations.map((variation) => {
+              const variationLabel =
+                variation.attributes
+                  ?.map(
+                    (attribute) =>
+                      `${attribute.name}: ${attribute.option}`
+                  )
+                  .filter(Boolean)
+                  .join(" • ") || "Default";
+
+              return (
+                <button
+                  type="button"
+                  className="variation-option"
+                  key={variation.id}
+                  disabled={
+                    Number(
+                      variation.stock_quantity || 0
+                    ) <= 0
+                  }
+                  onClick={() =>
+                    addVariationToCart(variation)
+                  }
+                >
+                  <div>
+                    <strong>{variationLabel}</strong>
+
+                    <small>
+                      Stock:{" "}
+                      {Number(
+                        variation.stock_quantity || 0
+                      )}
+                    </small>
+                  </div>
+
+                  <strong>
+                    BDT{" "}
+                    {Number(
+                      variation.price || 0
+                    ).toFixed(2)}
+                  </strong>
+                </button>
+              );
+            })}
+          </div>
+
+          {loadingVariations && (
+            <p className="variation-loading">
+              Loading variations...
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+    <div className="sales-grid">
 
         <div className="products-section">
           <div className="sales-card">
@@ -540,18 +720,7 @@ function Sales() {
 
                     </div>
 
-                    <strong className="item-total">
-                      BDT{" "}
-                      {(
-                        Number(
-                          item.selling_price || 0
-                        ) *
-                        Number(
-                          item.quantity || 0
-                        )
-                      ).toFixed(2)}
-                    </strong>
-
+                  
                     <button
                       className="remove-item"
                       onClick={() =>
@@ -795,5 +964,12 @@ function ShoppingCartIcon() {
 }
 
 export default Sales;
+
+
+
+
+
+
+
 
 

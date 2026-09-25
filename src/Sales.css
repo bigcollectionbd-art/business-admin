@@ -1223,3 +1223,98 @@
   width: 100% !important;
   box-sizing: border-box !important;
 }
+.variation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.variation-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  box-sizing: border-box;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.variation-modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.variation-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.variation-modal-header p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.variation-modal-header > button {
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.variation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.variation-option {
+  width: 100%;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.variation-option:hover:not(:disabled) {
+  border-color: #999;
+}
+
+.variation-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.variation-option div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.variation-option small {
+  color: #777;
+}
+
+.variation-loading {
+  text-align: center;
+  margin: 15px 0 0;
+  color: #666;
+}

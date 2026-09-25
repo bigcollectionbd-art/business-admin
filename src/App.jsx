@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -113,7 +113,7 @@ function App() {
           <div className="logo-icon">B</div>
 
           <div>
-            <strong>Business Admin</strong>
+            <strong>Big Collection BD</strong>
             <span>Management System</span>
           </div>
         </div>

@@ -86,6 +86,10 @@ function Sales() {
   }, [products, search]);
 
   async function addToCart(product) {
+    if (Number(product.stock_qty || 0) <= 0) {
+      alert("This product is out of stock.");
+      return;
+    }
     if (Number(product.selling_price || 0) === 0) {
       setLoadingVariations(true);
 
@@ -508,7 +512,7 @@ function Sales() {
                 setVariations([]);
               }}
             >
-              ×
+              Ã—
             </button>
           </div>
 
@@ -521,7 +525,7 @@ function Sales() {
                       `${attribute.name}: ${attribute.option}`
                   )
                   .filter(Boolean)
-                  .join(" • ") || "Default";
+                  .join(" â€¢ ") || "Default";
 
               return (
                 <button
@@ -964,6 +968,8 @@ function ShoppingCartIcon() {
 }
 
 export default Sales;
+
+
 
 
 

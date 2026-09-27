@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -215,7 +215,7 @@ function App() {
       </aside>
 
       <main className="main-content">
-        {page !== "settings" && (
+        {page !== "settings" && page !== "dashboard" && (
           <header className="topbar">
             <button
               className="menu-button"
@@ -254,3 +254,4 @@ function App() {
 }
 
 export default App;
+

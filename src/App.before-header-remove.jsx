@@ -215,6 +215,33 @@ function App() {
       </aside>
 
       <main className="main-content">
+        {page !== "settings" && page !== "dashboard" && (
+          <header className="topbar">
+            <button
+              className="menu-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+
+            <div>
+              <h1>{pageTitle}</h1>
+              <p>{pageSubtitle}</p>
+            </div>
+          </header>
+        )}
+
+        {page === "settings" && (
+          <div className="settings-topbar">
+            <button
+              className="menu-button"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
+        )}
+
         {page === "dashboard" && <Dashboard />}
         {page === "sales" && <Sales />}
         {page === "invoice" && <Invoice />}
@@ -227,6 +254,5 @@ function App() {
 }
 
 export default App;
-
 
 

@@ -21,7 +21,6 @@ import Invoice from "./Invoice";
 import Products from "./Products";
 import Customers from "./Customers";
 import SettingsPage from "./Settings";
-import Reports from "./Reports";
 import "./App.css";
 
 function App() {
@@ -185,15 +184,7 @@ function App() {
             Expenses
           </button>
 
-          <button
-            className={
-              page === "reports"
-                ? "nav-item active"
-                : "nav-item"
-            }
-            onClick={() => handlePageChange("reports")}
-            type="button"
-          >
+          <button className="nav-item">
             <BarChart3 size={20} />
             Reports
           </button>
@@ -230,16 +221,12 @@ function App() {
         {page === "products" && <Products />}
         {page === "customers" && <Customers />}
         {page === "settings" && <SettingsPage />}
-        {page === "reports" && <Reports />}
       </main>
     </div>
   );
 }
 
 export default App;
-
-
-
 
 
 

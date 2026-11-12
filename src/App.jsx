@@ -26,6 +26,7 @@ import "./App.css";
 
 function App() {
   const [session, setSession] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [page, setPage] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,6 +53,42 @@ function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    async function loadProfile() {
+      if (!session?.user?.id) {
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role, active")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.warn("Profile lookup failed:", error.message);
+        setUserRole(null);
+        return;
+      }
+
+      if (!profile) {
+        setUserRole(null);
+        return;
+      }
+
+      if (profile.active === false) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUserRole(null);
+        return;
+      }
+
+      setUserRole(profile.role || null);
+    }
+
+    loadProfile();
+  }, [session]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -198,17 +235,19 @@ function App() {
             Reports
           </button>
 
-          <button
-            className={
-              page === "settings"
-                ? "nav-item active"
-                : "nav-item"
-            }
-            onClick={() => handlePageChange("settings")}
-          >
-            <Settings size={20} />
-            Settings
-          </button>
+          {userRole === "owner" && (
+            <button
+              className={
+                page === "settings"
+                  ? "nav-item active"
+                  : "nav-item"
+              }
+              onClick={() => handlePageChange("settings")}
+            >
+              <Settings size={20} />
+              Settings
+            </button>
+          )}
         </nav>
 
         <button
@@ -223,13 +262,22 @@ function App() {
         </button>
       </aside>
 
+      <button
+        className="menu-button"
+        onClick={() => setMenuOpen((prev) => !prev)}
+        aria-label="Toggle menu"
+        type="button"
+      >
+        {menuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
       <main className="main-content">
         {page === "dashboard" && <Dashboard />}
         {page === "sales" && <Sales />}
         {page === "invoice" && <Invoice />}
         {page === "products" && <Products />}
         {page === "customers" && <Customers />}
-        {page === "settings" && <SettingsPage />}
+        {page === "settings" && userRole === "owner" && <SettingsPage />}
         {page === "reports" && <Reports />}
       </main>
     </div>
@@ -237,6 +285,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

@@ -1,4 +1,4 @@
-﻿import "./Sales.css";
+import "./Sales.css";
 import { useEffect, useMemo, useState } from "react";
 import { Search, Trash2, Plus, Minus } from "lucide-react";
 import { supabase } from "./supabase";
@@ -15,6 +15,10 @@ function Sales() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+
+  // Warranty and replacement apply to the whole invoice.
+  const [replacementDays, setReplacementDays] = useState("180");
+  const [warrantyPeriod, setWarrantyPeriod] = useState("1 Year");
 
   const [discount, setDiscount] = useState(0);
   const [paid, setPaid] = useState(0);
@@ -495,6 +499,10 @@ function Sales() {
             paid: Number(paid || 0),
             due,
             payment_method: paymentMethod,
+            replacement_days:
+              replacementDays === "none" ? null : Number(replacementDays),
+            warranty_period:
+              warrantyPeriod === "none" ? null : warrantyPeriod,
             status: "completed",
           })
           .select()
@@ -583,6 +591,8 @@ function Sales() {
       setCustomerName("");
       setCustomerPhone("");
       setCustomerAddress("");
+      setReplacementDays("180");
+      setWarrantyPeriod("1 Year");
       setDiscount(0);
       setPaid(0);
       setPaymentMethod("Cash On Delivery");
@@ -947,6 +957,43 @@ function Sales() {
 
               </div>
             </div>
+
+            <div className="customer-form warranty-selection">
+  <div className="form-title">
+    ওয়ারেন্টি ও রিপ্লেসমেন্ট
+  </div>
+
+  <div className="form-row">
+    <div className="form-group">
+      <label>রিপ্লেসমেন্ট গ্যারান্টি</label>
+      <select
+        value={replacementDays}
+        onChange={(e) => setReplacementDays(e.target.value)}
+      >
+        <option value="90">৯০ দিনের রিপ্লেসমেন্ট গ্যারান্টি</option>
+        <option value="180">১৮০ দিনের রিপ্লেসমেন্ট গ্যারান্টি</option>
+        <option value="365">১ বছরের রিপ্লেসমেন্ট গ্যারান্টি</option>
+        <option value="none">প্রযোজ্য নয়</option>
+      </select>
+    </div>
+
+    <div className="form-group">
+      <label>ওয়ারেন্টি</label>
+      <select
+        value={warrantyPeriod}
+        onChange={(e) => setWarrantyPeriod(e.target.value)}
+      >
+        <option value="1 Year">১ বছরের ওয়ারেন্টি</option>
+        <option value="2 Years">২ বছরের ওয়ারেন্টি</option>
+        <option value="none">প্রযোজ্য নয়</option>
+      </select>
+    </div>
+  </div>
+
+  <small>
+    এই শর্তগুলো সম্পূর্ণ ইনভয়েসের জন্য সংরক্ষিত থাকবে।
+  </small>
+</div>
 
             <div className="sale-summary">
 

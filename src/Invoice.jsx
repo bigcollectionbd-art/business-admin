@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import * as XLSX from "xlsx";
 import { supabase } from "./supabase";
@@ -46,6 +46,8 @@ function Invoice() {
         discount,
         total,
         payment_method,
+        replacement_days,
+        warranty_period,
         customers (
           id,
           name,
@@ -519,28 +521,48 @@ function Invoice() {
 
             <div className="invoice-bottom">
               <div className="terms-section">
-                <div className="terms-title">
-                  Terms & Conditions
-                </div>
+  <div className="terms-title">
+    শর্তাবলি
+  </div>
 
-                <div className="term">
-                  1. পণ্য গ্রহণের সময় চেক করে বুঝে নিন।
-                </div>
+  <div className="term">
+    ১। {
+      selectedSale.replacement_days == null
+        ? "রিপ্লেসমেন্ট সুবিধা প্রযোজ্য নয়।"
+        : Number(selectedSale.replacement_days) === 365
+          ? "১ বছরের রিপ্লেসমেন্ট গ্যারান্টি প্রযোজ্য।"
+          : Number(selectedSale.replacement_days) === 180
+            ? "১৮০ দিনের রিপ্লেসমেন্ট গ্যারান্টি প্রযোজ্য।"
+            : Number(selectedSale.replacement_days) === 90
+              ? "৯০ দিনের রিপ্লেসমেন্ট গ্যারান্টি প্রযোজ্য।"
+              : `${selectedSale.replacement_days} দিনের রিপ্লেসমেন্ট গ্যারান্টি প্রযোজ্য।`
+    }
+  </div>
 
-                <div className="term">
-                  2. শুধুমাত্র ম্যানুফ্যাকচারিং ত্রুটির ক্ষেত্রে ৩ দিনের মধ্যে এক্সচেঞ্জ প্রযোজ্য।
-                </div>
+  <div className="term">
+    ২। {
+      !selectedSale.warranty_period || selectedSale.warranty_period === "none"
+        ? "ওয়ারেন্টি প্রযোজ্য নয়।"
+        : selectedSale.warranty_period === "1 Year"
+          ? "১ বছরের ওয়ারেন্টি প্রযোজ্য।"
+          : selectedSale.warranty_period === "2 Years"
+            ? "২ বছরের ওয়ারেন্টি প্রযোজ্য।"
+            : `${selectedSale.warranty_period} ওয়ারেন্টি প্রযোজ্য।`
+    }
+  </div>
 
-                <div className="term">
-                  3. ডেলিভারি চার্জ ফেরতযোগ্য নয়।
-                </div>
+  <div className="term">
+    ৩। পণ্য গ্রহণের সময় ভালোভাবে পরীক্ষা করে বুঝে নিন।
+  </div>
 
-                <div className="term">
-                  4. এক্সচেঞ্জের জন্য ইনভয়েস সংরক্ষণ করতে হবে।
-                </div>
-              </div>
+  <div className="term">
+    ৪। ডেলিভারি চার্জ ফেরতযোগ্য নয়।
+  </div>
 
-              <div className="signature-section">
+  <div className="term">
+    ৫। রিপ্লেসমেন্ট অথবা ওয়ারেন্টি দাবি করার জন্য ইনভয়েসটি সংরক্ষণ করতে হবে।
+  </div>
+</div><div className="signature-section">
                 <div className="signature-line"></div>
 
                 <div className="signature-title">

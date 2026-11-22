@@ -546,7 +546,7 @@ function Invoice() {
             background: "#F5FBF6",
             maxWidth: "520px",
           }}>
-            <strong>Pathao Booking Status: {bookingInfo.order_status || bookingInfo.booking_status || "Booked"}</strong>
+            <strong>Pathao Booking Status: {bookingInfo.booking_status ? bookingInfo.booking_status.charAt(0).toUpperCase() + bookingInfo.booking_status.slice(1) : "Booked"}</strong>
             <div style={{ marginTop: "6px" }}>
               Consignment ID: <strong>{bookingInfo.consignment_id || "Saved — ID not returned"}</strong>
             </div>

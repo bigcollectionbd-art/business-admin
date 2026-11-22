@@ -32,6 +32,10 @@ function Invoice() {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingInfo, setBookingInfo] = useState(null);
   const [bookingError, setBookingError] = useState("");
+  const [deliveryStatus, setDeliveryStatus] = useState("");
+  const [deliveryStatusUpdatedAt, setDeliveryStatusUpdatedAt] = useState("");
+  const [deliveryStatusLoading, setDeliveryStatusLoading] = useState(false);
+  const [deliveryStatusError, setDeliveryStatusError] = useState("");
 
   useEffect(() => {
     loadInvoices();
@@ -72,12 +76,42 @@ function Invoice() {
     setLoading(false);
   }
 
+  async function refreshPathaoStatus(saleId) {
+    setDeliveryStatusLoading(true);
+    setDeliveryStatusError("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "pathao-check-status",
+        { body: { sale_id: saleId } }
+      );
+
+      if (error) throw error;
+      if (!data?.success) {
+        throw new Error(data?.error || "Could not fetch Pathao delivery status.");
+      }
+
+      setDeliveryStatus(data.order_status || "Status unavailable");
+      setDeliveryStatusUpdatedAt(data.pathao_updated_at || "");
+    } catch (error) {
+      console.error("Pathao status error:", error);
+      setDeliveryStatusError(
+        error.message || "Could not fetch the latest Pathao status."
+      );
+    } finally {
+      setDeliveryStatusLoading(false);
+    }
+  }
+
   async function openInvoice(sale) {
     setDetailLoading(true);
     setSelectedSale(sale);
     setItems([]);
     setBookingInfo(null);
     setBookingError("");
+    setDeliveryStatus("");
+    setDeliveryStatusUpdatedAt("");
+    setDeliveryStatusError("");
     setDeliveryCharge("");
     setShowBookingForm(false);
 
@@ -89,6 +123,9 @@ function Invoice() {
 
     if (!parcelError && existingParcel) {
       setBookingInfo(existingParcel);
+      if (existingParcel.consignment_id) {
+        await refreshPathaoStatus(sale.id);
+      }
     }
 
     const { data, error } = await supabase
@@ -165,6 +202,7 @@ function Invoice() {
       }
 
       setShowBookingForm(false);
+      await refreshPathaoStatus(selectedSale.id);
     } catch (error) {
       console.error("Pathao booking error:", error);
       setBookingError(error.message || "Pathao booking failed. Please try again.");
@@ -376,6 +414,9 @@ function Invoice() {
     setItems([]);
     setBookingInfo(null);
     setBookingError("");
+    setDeliveryStatus("");
+    setDeliveryStatusUpdatedAt("");
+    setDeliveryStatusError("");
     setDeliveryCharge("");
     setShowBookingForm(false);
   }
@@ -512,6 +553,19 @@ function Invoice() {
             {bookingInfo.cod_amount != null && (
               <div style={{ marginTop: "4px" }}>
                 COD Amount: <strong>BDT {Number(bookingInfo.cod_amount).toFixed(2)}</strong>
+              </div>
+            )}
+            <div style={{ marginTop: "4px" }}>
+              Delivery Status: <strong>{deliveryStatusLoading ? "Checking..." : deliveryStatus || "Not updated yet"}</strong>
+            </div>
+            {deliveryStatusUpdatedAt && (
+              <div style={{ marginTop: "4px", fontSize: "13px", color: "#666" }}>
+                Last updated: {deliveryStatusUpdatedAt}
+              </div>
+            )}
+            {deliveryStatusError && (
+              <div role="alert" style={{ marginTop: "6px", color: "#C62828", fontSize: "13px" }}>
+                {deliveryStatusError}
               </div>
             )}
           </div>

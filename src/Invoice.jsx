@@ -20,6 +20,28 @@ function money(value) {
   return "BDT " + Number(value || 0).toFixed(2);
 }
 
+function formatPathaoStatus(status) {
+  if (!status || status === "Status unavailable") return status || "Not updated yet";
+  const labels = {
+    Assigned_for_Pickup: "Assigned for Pickup",
+    In_Transit: "In-Transit",
+    Delivered: "Delivered",
+    Pending: "Pending",
+    Pickup_Requested: "Pickup Requested",
+    At_Sorting_Hub: "At Sorting Hub",
+    At_Delivery_Hub: "At Delivery Hub",
+    Assigned_for_Delivery: "Assigned for Delivery",
+    Delivery_Failed: "Delivery Failed",
+    Returned: "Returned",
+  };
+  return labels[status] || status.replaceAll("_", " ").replace(/\\b\\w/g, (letter) => letter.toUpperCase());
+}
+
+function getPathaoStatusDetail(status) {
+  if (!status || status === "Status unavailable") return "Not updated yet";
+  return "Latest location details are not provided by Pathao's current order-info API.";
+}
+
 function Invoice() {
   const [sales, setSales] = useState([]);
   const [selectedSale, setSelectedSale] = useState(null);
@@ -546,7 +568,7 @@ function Invoice() {
             background: "#F5FBF6",
             maxWidth: "520px",
           }}>
-            <strong>Pathao Booking Status: {bookingInfo.booking_status ? bookingInfo.booking_status.charAt(0).toUpperCase() + bookingInfo.booking_status.slice(1) : "Booked"}</strong>
+            <strong>Pathao Booking Status: {deliveryStatusLoading ? "Checking..." : formatPathaoStatus(deliveryStatus)}</strong>
             <div style={{ marginTop: "6px" }}>
               Consignment ID: <strong>{bookingInfo.consignment_id || "Saved — ID not returned"}</strong>
             </div>
@@ -556,7 +578,7 @@ function Invoice() {
               </div>
             )}
             <div style={{ marginTop: "4px" }}>
-              Delivery Status: <strong>{deliveryStatusLoading ? "Checking..." : deliveryStatus || "Not updated yet"}</strong>
+              Delivery Status: <strong>{deliveryStatusLoading ? "Checking..." : getPathaoStatusDetail(deliveryStatus)}</strong>
             </div>
             {deliveryStatusUpdatedAt && (
               <div style={{ marginTop: "4px", fontSize: "13px", color: "#666" }}>

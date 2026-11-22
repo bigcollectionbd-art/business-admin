@@ -27,6 +27,11 @@ function Invoice() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [deliveryCharge, setDeliveryCharge] = useState("");
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [bookingInfo, setBookingInfo] = useState(null);
+  const [bookingError, setBookingError] = useState("");
 
   useEffect(() => {
     loadInvoices();
@@ -71,6 +76,20 @@ function Invoice() {
     setDetailLoading(true);
     setSelectedSale(sale);
     setItems([]);
+    setBookingInfo(null);
+    setBookingError("");
+    setDeliveryCharge("");
+    setShowBookingForm(false);
+
+    const { data: existingParcel, error: parcelError } = await supabase
+      .from("pathao_parcels")
+      .select("consignment_id, booking_status, order_status, cod_amount")
+      .eq("sale_id", sale.id)
+      .maybeSingle();
+
+    if (!parcelError && existingParcel) {
+      setBookingInfo(existingParcel);
+    }
 
     const { data, error } = await supabase
       .from("sale_items")
@@ -91,6 +110,67 @@ function Invoice() {
     }
 
     setDetailLoading(false);
+  }
+
+  async function bookPathaoParcel() {
+    if (bookingLoading || bookingInfo) return;
+
+    if (deliveryCharge.trim() === "") {
+      setBookingError("Please enter the Delivery Charge.");
+      return;
+    }
+
+    const charge = Number(deliveryCharge);
+
+    if (!Number.isInteger(charge) || charge < 0) {
+      setBookingError("Delivery Charge must be a valid whole number.");
+      return;
+    }
+
+    setBookingLoading(true);
+    setBookingError("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "pathao-create-order",
+        {
+          body: {
+            sale_id: selectedSale.id,
+            delivery_charge: charge,
+          },
+        }
+      );
+
+      if (error) throw error;
+      if (data?.success === false) {
+        throw new Error(data.message || "Pathao booking failed.");
+      }
+
+      const { data: savedParcel, error: savedParcelError } = await supabase
+        .from("pathao_parcels")
+        .select("consignment_id, booking_status, order_status, cod_amount")
+        .eq("sale_id", selectedSale.id)
+        .maybeSingle();
+
+      if (!savedParcelError && savedParcel) {
+        setBookingInfo(savedParcel);
+      } else {
+        const result = data?.data || data || {};
+        setBookingInfo({
+          consignment_id: result.consignment_id || "",
+          booking_status: "booked",
+          order_status: result.order_status || "Booked",
+          cod_amount: result.cod_amount,
+        });
+      }
+
+      setShowBookingForm(false);
+    } catch (error) {
+      console.error("Pathao booking error:", error);
+      setBookingError(error.message || "Pathao booking failed. Please try again.");
+    } finally {
+      setBookingLoading(false);
+    }
   }
 
   async function exportExcel() {
@@ -294,6 +374,10 @@ function Invoice() {
   function closeInvoice() {
     setSelectedSale(null);
     setItems([]);
+    setBookingInfo(null);
+    setBookingError("");
+    setDeliveryCharge("");
+    setShowBookingForm(false);
   }
 
   if (loading) {
@@ -325,7 +409,119 @@ function Invoice() {
           >
             Print Invoice
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setBookingError("");
+              setShowBookingForm((current) => !current);
+            }}
+            disabled={Boolean(bookingInfo) || bookingLoading}
+            style={{
+              backgroundColor: "#E53935",
+              color: "#FFFFFF",
+              border: "none",
+              borderRadius: "6px",
+              padding: "10px 16px",
+              fontWeight: 600,
+              cursor: bookingInfo || bookingLoading ? "not-allowed" : "pointer",
+              opacity: bookingInfo ? 0.75 : 1,
+            }}
+          >
+            {bookingInfo ? "Pathao Booked" : "Pathao Booking"}
+          </button>
         </div>
+
+        {showBookingForm && !bookingInfo && (
+          <div className="no-print" style={{
+            margin: "12px 0 18px",
+            padding: "16px",
+            border: "1px solid #E53935",
+            borderRadius: "8px",
+            background: "#FFF8F7",
+            maxWidth: "420px",
+          }}>
+            <strong style={{ display: "block", marginBottom: "10px" }}>
+              Pathao Parcel Booking
+            </strong>
+
+            <label style={{ display: "block", marginBottom: "6px" }}>
+              Delivery Charge (BDT)
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={deliveryCharge}
+              onChange={(event) => setDeliveryCharge(event.target.value)}
+              placeholder="Enter delivery charge"
+              disabled={bookingLoading}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                padding: "10px",
+                border: "1px solid #CCCCCC",
+                borderRadius: "6px",
+                marginBottom: "10px",
+              }}
+            />
+
+            <div style={{ marginBottom: "12px", fontSize: "14px" }}>
+              COD Amount: <strong>BDT {(Number(selectedSale.total || 0) + (Number(deliveryCharge) || 0)).toFixed(2)}</strong>
+            </div>
+
+            {bookingError && (
+              <div role="alert" style={{ color: "#C62828", marginBottom: "10px" }}>
+                {bookingError}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={bookPathaoParcel}
+              disabled={bookingLoading}
+              style={{
+                backgroundColor: "#E53935",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: "6px",
+                padding: "10px 16px",
+                fontWeight: 600,
+                cursor: bookingLoading ? "not-allowed" : "pointer",
+              }}
+            >
+              {bookingLoading ? "Booking..." : "Confirm Pathao Booking"}
+            </button>
+          </div>
+        )}
+
+        {bookingInfo && (
+          <div className="no-print" style={{
+            margin: "12px 0 18px",
+            padding: "14px 16px",
+            border: "1px solid #D7E8DC",
+            borderRadius: "8px",
+            background: "#F5FBF6",
+            maxWidth: "520px",
+          }}>
+            <strong>Pathao Booking Status: {bookingInfo.order_status || bookingInfo.booking_status || "Booked"}</strong>
+            <div style={{ marginTop: "6px" }}>
+              Consignment ID: <strong>{bookingInfo.consignment_id || "Saved — ID not returned"}</strong>
+            </div>
+            {bookingInfo.cod_amount != null && (
+              <div style={{ marginTop: "4px" }}>
+                COD Amount: <strong>BDT {Number(bookingInfo.cod_amount).toFixed(2)}</strong>
+              </div>
+            )}
+          </div>
+        )}
+
+        {bookingError && !showBookingForm && !bookingInfo && (
+          <div className="no-print" role="alert" style={{ color: "#C62828", margin: "8px 0" }}>
+            {bookingError}
+          </div>
+        )}
 
         {detailLoading ? (
           <div className="invoice-list-card">

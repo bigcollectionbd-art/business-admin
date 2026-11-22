@@ -37,11 +37,6 @@ function formatPathaoStatus(status) {
   return labels[status] || status.replaceAll("_", " ").replace(/\\b\\w/g, (letter) => letter.toUpperCase());
 }
 
-function getPathaoStatusDetail(status) {
-  if (!status || status === "Status unavailable") return "Not updated yet";
-  return "Latest location details are not provided by Pathao's current order-info API.";
-}
-
 function Invoice() {
   const [sales, setSales] = useState([]);
   const [selectedSale, setSelectedSale] = useState(null);
@@ -577,17 +572,9 @@ function Invoice() {
                 COD Amount: <strong>BDT {Number(bookingInfo.cod_amount).toFixed(2)}</strong>
               </div>
             )}
-            <div style={{ marginTop: "4px" }}>
-              Delivery Status: <strong>{deliveryStatusLoading ? "Checking..." : getPathaoStatusDetail(deliveryStatus)}</strong>
-            </div>
             {deliveryStatusUpdatedAt && (
               <div style={{ marginTop: "4px", fontSize: "13px", color: "#666" }}>
                 Last updated: {deliveryStatusUpdatedAt}
-              </div>
-            )}
-            {deliveryStatusError && (
-              <div role="alert" style={{ marginTop: "6px", color: "#C62828", fontSize: "13px" }}>
-                {deliveryStatusError}
               </div>
             )}
           </div>

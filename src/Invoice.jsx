@@ -563,7 +563,7 @@ function Invoice() {
             background: "#F5FBF6",
             maxWidth: "520px",
           }}>
-            <strong>Pathao Booking Status: {deliveryStatusLoading ? "Checking..." : formatPathaoStatus(deliveryStatus)}</strong>
+            <strong>Pathao Booking Status / Delivery Status: {deliveryStatusLoading ? "Checking..." : formatPathaoStatus(deliveryStatus)}</strong>
             <div style={{ marginTop: "6px" }}>
               Consignment ID: <strong>{bookingInfo.consignment_id || "Saved — ID not returned"}</strong>
             </div>

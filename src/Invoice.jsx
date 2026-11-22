@@ -428,7 +428,7 @@ function Invoice() {
               opacity: bookingInfo ? 0.75 : 1,
             }}
           >
-            {bookingInfo ? "Pathao Booked" : "Pathao Booking"}
+            {bookingInfo ? "Already Book" : "Pathao Booking"}
           </button>
         </div>
 

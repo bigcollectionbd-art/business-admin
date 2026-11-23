@@ -105,3 +105,12 @@
   .admin-app, .admin-app .main-content { background-color: #fff8ef; }
   .admin-app .sidebar { box-shadow: 12px 0 32px rgba(16,40,62,.2); }
 }
+
+/* Preserve all existing invoice artwork and print styling. */
+.admin-app .invoice-paper,
+.admin-app .invoice-paper * {
+  color: revert;
+  background-color: revert;
+  border-color: revert;
+  box-shadow: revert;
+}

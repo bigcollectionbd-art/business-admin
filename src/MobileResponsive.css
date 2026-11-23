@@ -1,0 +1,189 @@
+/* Mobile-only presentation overrides. Desktop rules remain untouched. */
+@media (max-width: 700px) {
+  html, body, #root { width: 100%; max-width: 100%; min-width: 0; }
+  #root { text-align: left; border-inline: 0; }
+  .admin-app { width: 100%; min-width: 0; overflow-x: clip; }
+  .main-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    padding: 62px 12px 20px !important;
+    overflow-x: clip;
+  }
+  .sidebar {
+    width: min(82vw, 300px) !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow-y: auto;
+    z-index: 120 !important;
+    padding: 18px 12px !important;
+    box-shadow: 12px 0 32px rgba(15, 23, 42, .22);
+  }
+  .sidebar.open { transform: translateX(0) !important; }
+  .mobile-menu-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(15, 23, 42, .42);
+  }
+  .menu-button {
+    display: flex !important;
+    position: fixed !important;
+    top: max(10px, env(safe-area-inset-top)) !important;
+    left: 12px !important;
+    z-index: 130 !important;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    color: #172033;
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .12);
+  }
+  .dashboard-modern, .dashboard-main-grid, .dashboard-bottom-grid,
+  .sales-page, .products-page, .customers-page, .reports-page,
+  .settings-page, .invoice-page { width: 100%; max-width: 100%; min-width: 0; }
+  .dashboard-heading { gap: 8px; margin-bottom: 14px; }
+  .dashboard-heading h1 { font-size: 23px; }
+  .dashboard-modern .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 9px; }
+  .dashboard-modern .modern-stat { padding: 12px; }
+  .dashboard-modern .modern-stat strong { font-size: clamp(15px, 4.5vw, 20px); }
+  .dashboard-modern .stat-top > span { font-size: 11px; }
+  .dashboard-main-grid, .dashboard-bottom-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 12px; }
+  .dashboard-chart-card, .dashboard-table-card, .report-card { min-width: 0; padding: 12px; }
+  .payment-chart { grid-template-columns: minmax(0, 1fr) !important; }
+  .dashboard-table-wrap, .recent-sales-table-wrap, .customers-table-wrap,
+  .products-table, .user-table-wrapper { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .sales-page { padding: 0 0 18px !important; }
+  .sales-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 12px; }
+  .sales-card, .sales-section, .cart-section { min-width: 0; width: 100%; }
+  .sales-card-header { padding: 14px !important; }
+  .customer-form, .product-list { padding-left: 12px !important; padding-right: 12px !important; }
+  .cart-list, .sale-summary, .payment-section { margin-left: 12px !important; margin-right: 12px !important; }
+  .complete-sale-button { width: calc(100% - 24px) !important; margin-left: 12px !important; margin-right: 12px !important; }
+  .products-page, .customers-page, .settings-page { padding: 12px !important; }
+  .products-top, .customers-toolbar, .reports-toolbar { align-items: stretch; flex-direction: column; gap: 10px; }
+  .products-search, .customers-search { width: 100% !important; }
+  .add-customer-button { width: 100%; }
+  .reports-actions { width: 100%; flex-wrap: wrap; }
+  .report-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 9px; }
+  .report-stat-card { min-width: 0; padding: 12px; gap: 8px; }
+  .settings-form, .customer-form-box { padding: 14px !important; }
+  .add-admin-grid { grid-template-columns: minmax(0, 1fr) !important; }
+
+  /* Keep the A4 invoice proportional, aligned to the mobile viewport, and fully visible horizontally. */
+  .invoice-page { padding: 8px 6px 16px !important; overflow-x: hidden; }
+  .invoice-list-card { padding: 12px !important; }
+  .invoice-list-header { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .invoice-header-actions { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+  .invoice-actions {
+    width: 100% !important;
+    margin: 0 0 12px !important;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-start !important;
+  }
+  .invoice-actions button {
+    padding: 8px 10px !important;
+    min-height: 36px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .invoice-actions .secondary-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #172033 !important;
+    -webkit-text-fill-color: #172033 !important;
+    background: #ffffff !important;
+    border: 1px solid #64748b !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .invoice-paper {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    height: 297mm !important;
+    position: relative !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 6mm !important;
+    transform: scale(.41) !important;
+    transform-origin: top left !important;
+    overflow: visible !important;
+  }
+}
+@media (max-width: 380px) {
+  .dashboard-modern .stats-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .invoice-paper { transform: scale(.41) !important; }
+}
+@media (min-width: 381px) and (max-width: 400px) {
+  .invoice-paper { transform: scale(.44) !important; }
+}
+@media (min-width: 401px) and (max-width: 415px) {
+  .invoice-paper { transform: scale(.46) !important; }
+}
+@media (min-width: 416px) and (max-width: 700px) {
+  .invoice-paper { transform: scale(.49) !important; }
+}
+@media print {
+  .mobile-menu-backdrop,
+  .sidebar,
+  .menu-button,
+  .no-print,
+  .invoice-actions { display: none !important; }
+
+  /* Mobile preview scaling is for screen only; restore the real A4 page for printing. */
+  html, body, #root, .admin-app, .main-content {
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  .invoice-page {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    background: #fff !important;
+  }
+
+  .invoice-paper {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 6mm !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    transform: none !important;
+    transform-origin: top left !important;
+    border: none !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-before: avoid !important;
+    break-after: avoid !important;
+  }
+}

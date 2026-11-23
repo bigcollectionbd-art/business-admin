@@ -58,8 +58,14 @@ function App() {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [splashReady, setSplashReady] = useState(false);
   const [page, setPage] = useState("dashboard");
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const splashTimer = window.setTimeout(() => setSplashReady(true), 900);
+    return () => window.clearTimeout(splashTimer);
+  }, []);
 
   useEffect(() => {
     async function checkSession() {
@@ -138,18 +144,16 @@ function App() {
     return <InvoicePrintView />;
   }
 
-  if (checkingAuth) {
+  if (checkingAuth || !splashReady) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "Arial, sans-serif",
-        }}
-      >
-        Loading...
+      <div className="startup-splash" role="status" aria-label="Big Collection BD loading">
+        <div className="startup-splash-content">
+          <div className="startup-bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <img className="startup-logo" src="/app-icon.svg" alt="Big Collection BD" />
+          <div className="startup-brand">Big Collection BD</div>
+          <div className="startup-caption">Management System</div>
+          <div className="startup-loader" aria-hidden="true"><span /></div>
+        </div>
       </div>
     );
   }

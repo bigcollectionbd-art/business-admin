@@ -91,9 +91,11 @@
     width: 210mm !important;
     min-height: 0 !important;
     height: 133.65mm !important;
-    margin: 0 0 0 calc((100vw - 793.7px * .45) / 2) !important;
+    position: relative;
+    left: 50%;
+    margin: 0 !important;
     padding: 6mm !important;
-    transform: scale(.45);
+    transform: translateX(-50%) scale(.45);
     transform-origin: top left;
     overflow: hidden !important;
   }
@@ -102,15 +104,15 @@
   .dashboard-modern .stats-grid { grid-template-columns: minmax(0, 1fr) !important; }
   .invoice-paper {
     height: 118.1mm !important;
-    margin-left: calc((100vw - 793.7px * .397) / 2) !important;
-    transform: scale(.397);
+    left: 50%;
+    transform: translateX(-50%) scale(.397);
   }
 }
 @media (min-width: 381px) and (max-width: 430px) {
   .invoice-paper {
     height: 145.5mm !important;
-    margin-left: calc((100vw - 793.7px * .49) / 2) !important;
-    transform: scale(.49);
+    left: 50%;
+    transform: translateX(-50%) scale(.49);
   }
 }
 @media print {

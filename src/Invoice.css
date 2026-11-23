@@ -180,6 +180,13 @@
   margin: 0 auto;
 }
 
+.qr-section img {
+  display: block;
+  width: 82px !important;
+  height: 82px !important;
+  margin: 0 auto;
+}
+
 .qr-caption {
   margin-top: 3px;
   font-size: 7px;

@@ -23,6 +23,7 @@ import Customers from "./Customers";
 import SettingsPage from "./Settings";
 import Reports from "./Reports";
 import "./App.css";
+import "./MobileResponsive.css";
 
 function App() {
   const [session, setSession] = useState(null);

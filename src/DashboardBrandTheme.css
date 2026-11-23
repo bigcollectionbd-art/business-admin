@@ -1,0 +1,192 @@
+/* Big Collection BD premium dashboard palette.
+   Scoped to the dashboard view so other app pages and workflows stay unchanged. */
+.admin-app:has(.dashboard-modern) {
+  background: #fff8ef;
+  color: #17324d;
+}
+
+.admin-app:has(.dashboard-modern) .main-content {
+  background:
+    radial-gradient(circle at 92% 4%, rgba(244, 123, 32, 0.09), transparent 25rem),
+    #fff8ef;
+}
+
+.admin-app:has(.dashboard-modern) .sidebar {
+  background: linear-gradient(180deg, #17324d 0%, #10283e 100%);
+  color: #fffaf4;
+  box-shadow: 8px 0 28px rgba(23, 50, 77, 0.12);
+}
+
+.admin-app:has(.dashboard-modern) .logo {
+  padding-bottom: 30px;
+}
+
+.admin-app:has(.dashboard-modern) .logo-icon {
+  color: #17324d;
+  background: linear-gradient(145deg, #ffbd78, #f47b20);
+  box-shadow: 0 5px 14px rgba(244, 123, 32, 0.24);
+}
+
+.admin-app:has(.dashboard-modern) .logo strong {
+  color: #fffaf4;
+}
+
+.admin-app:has(.dashboard-modern) .logo span {
+  color: #c8d3df;
+}
+
+.admin-app:has(.dashboard-modern) .nav-item {
+  color: #d1dbe5;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.admin-app:has(.dashboard-modern) .nav-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.admin-app:has(.dashboard-modern) .nav-item.active {
+  color: #fff;
+  background: linear-gradient(105deg, #f47b20, #e96b13);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 5px 14px rgba(244, 123, 32, 0.2);
+}
+
+.admin-app:has(.dashboard-modern) .menu-button {
+  color: #17324d;
+  background: #fff;
+  border: 1px solid #f2dfcb;
+  box-shadow: 0 4px 14px rgba(23, 50, 77, 0.1);
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-heading h1 {
+  color: #17324d;
+  letter-spacing: -0.45px;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-heading p {
+  color: #778493;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-date {
+  color: #536477;
+  background: rgba(255, 255, 255, 0.88);
+  border-color: #f0dfcd;
+  box-shadow: 0 3px 12px rgba(23, 50, 77, 0.035);
+}
+
+.admin-app:has(.dashboard-modern) .modern-stat,
+.admin-app:has(.dashboard-modern) .dashboard-chart-card,
+.admin-app:has(.dashboard-modern) .dashboard-table-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #f1e4d6;
+  box-shadow: 0 7px 22px rgba(67, 49, 31, 0.055);
+}
+
+.admin-app:has(.dashboard-modern) .modern-stat,
+.admin-app:has(.dashboard-modern) .dashboard-chart-card,
+.admin-app:has(.dashboard-modern) .dashboard-table-card {
+  border-radius: 16px;
+}
+
+.admin-app:has(.dashboard-modern) .modern-stat strong,
+.admin-app:has(.dashboard-modern) .chart-header h2,
+.admin-app:has(.dashboard-modern) .table-card-header h2 {
+  color: #17324d;
+}
+
+.admin-app:has(.dashboard-modern) .stat-top > span {
+  color: #647386;
+}
+
+.admin-app:has(.dashboard-modern) .modern-stat small,
+.admin-app:has(.dashboard-modern) .chart-header p,
+.admin-app:has(.dashboard-modern) .table-card-header p {
+  color: #8993a0;
+}
+
+.admin-app:has(.dashboard-modern) .sales-icon,
+.admin-app:has(.dashboard-modern) .order-icon,
+.admin-app:has(.dashboard-modern) .due-icon,
+.admin-app:has(.dashboard-modern) .product-icon,
+.admin-app:has(.dashboard-modern) .dashboard-section-icon {
+  color: #e96f18;
+  background: #fff0df;
+}
+
+.admin-app:has(.dashboard-modern) .chart-total {
+  color: #e96f18;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-table th {
+  color: #536477;
+  background: #fff5e9;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-table td {
+  color: #687789;
+  border-top-color: #f4eadf;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-table td strong {
+  color: #17324d;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-table tr:hover td {
+  background: #fffaf4;
+}
+
+.admin-app:has(.dashboard-modern) .dashboard-empty,
+.admin-app:has(.dashboard-modern) .dashboard-no-data {
+  color: #8993a0 !important;
+}
+
+.admin-app:has(.dashboard-modern) .payment-name {
+  color: #536477;
+}
+
+.admin-app:has(.dashboard-modern) .payment-value strong {
+  color: #17324d;
+}
+
+.admin-app:has(.dashboard-modern) .payment-value small {
+  color: #8993a0;
+}
+
+.admin-app:has(.dashboard-modern) .stock-placeholder {
+  color: #e96f18;
+  background: #fff0df;
+}
+
+.admin-app:has(.dashboard-modern) #dashboardSalesGradient stop:first-child {
+  stop-color: #f47b20;
+}
+
+.admin-app:has(.dashboard-modern) #dashboardSalesGradient stop:last-child {
+  stop-color: #f47b20;
+}
+
+@media (max-width: 700px) {
+  .admin-app:has(.dashboard-modern) .main-content {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(244, 123, 32, 0.1), transparent 16rem),
+      #fff8ef;
+  }
+
+  .admin-app:has(.dashboard-modern) .sidebar {
+    box-shadow: 12px 0 32px rgba(16, 40, 62, 0.2);
+  }
+
+  .admin-app:has(.dashboard-modern) .modern-stat,
+  .admin-app:has(.dashboard-modern) .dashboard-chart-card,
+  .admin-app:has(.dashboard-modern) .dashboard-table-card {
+    border-radius: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app:has(.dashboard-modern) .nav-item {
+    transition: none;
+  }
+}

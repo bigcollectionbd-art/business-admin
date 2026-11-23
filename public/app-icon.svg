@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#6d28d9"/><path d="M282 64 112 282h112l-18 166 194-236H278l4-148Z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Big Collection BD">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <circle cx="256" cy="256" r="244" fill="#ffffff" stroke="#f58220" stroke-width="12"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="148" text-anchor="middle">
+    <text x="137" y="276" fill="#080808">B</text>
+    <text x="255" y="276" fill="#f58220">C</text>
+    <text x="375" y="276" fill="#080808">B</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="37" text-anchor="middle">
+    <text x="256" y="337" fill="#080808">BIG COLLECTION <tspan fill="#f58220">BD</tspan></text>
+  </g>
+</svg>

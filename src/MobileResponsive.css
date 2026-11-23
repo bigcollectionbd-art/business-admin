@@ -188,34 +188,50 @@
   }
 }
 
-/* iPhone Safari standalone print: keep the invoice on one A4 sheet. */
+/* iPhone Safari standalone print: prevent the trailing blank sheet. */
 @media print {
   html:has(.ios-safari-print-page),
-  body:has(.ios-safari-print-page),
-  body:has(.ios-safari-print-page) #root {
+  body:has(.ios-safari-print-page) {
     width: 210mm !important;
-    height: 297mm !important;
-    min-height: 297mm !important;
-    max-height: 297mm !important;
+    height: 296mm !important;
+    min-height: 296mm !important;
+    max-height: 296mm !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
+  }
+
+  body:has(.ios-safari-print-page) #root {
+    display: block !important;
+    position: relative !important;
+    width: 210mm !important;
+    height: 296mm !important;
+    min-height: 296mm !important;
+    max-height: 296mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    flex: none !important;
   }
 
   .ios-safari-print-page {
     position: relative !important;
     display: block !important;
     width: 210mm !important;
-    height: 297mm !important;
-    min-height: 297mm !important;
-    max-height: 297mm !important;
+    height: 296mm !important;
+    min-height: 296mm !important;
+    max-height: 296mm !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
     page-break-before: avoid !important;
     page-break-after: avoid !important;
     break-before: avoid-page !important;
     break-after: avoid-page !important;
+    break-inside: avoid !important;
   }
 
   .ios-safari-print-page .ios-safari-print {
@@ -234,6 +250,7 @@
     page-break-after: avoid !important;
     break-before: avoid-page !important;
     break-after: avoid-page !important;
+    break-inside: avoid !important;
   }
 
   .ios-safari-print-page .invoice-actions,
@@ -241,35 +258,3 @@
     display: none !important;
   }
 }
-
-/* iOS Safari tap responsiveness for both menu controls and navigation items. */
-@media (max-width: 700px) {
-  .menu-button,
-  .sidebar .nav-item,
-  .mobile-menu-backdrop {
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .menu-button,
-  .sidebar .nav-item {
-    pointer-events: auto !important;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-
-  .menu-button {
-    min-width: 44px !important;
-    min-height: 44px !important;
-  }
-
-  .sidebar .nav-item {
-    min-height: 44px;
-  }
-
-  .sidebar {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-}
-

@@ -24,6 +24,7 @@ import {
 } from "recharts";
 
 import { supabase } from "./supabase";
+import "./DashboardBrandTheme.css";
 
 function Dashboard() {
   const [todaySales, setTodaySales] = useState([]);

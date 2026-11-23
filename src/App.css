@@ -1087,3 +1087,100 @@ nav {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Branded startup splash shown consistently across app platforms */
+.startup-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: linear-gradient(145deg, #fffaf3 0%, #fff1df 100%);
+  color: #17324d;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.startup-splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  animation: startup-splash-enter 500ms ease-out both;
+}
+
+.startup-bismillah {
+  margin-bottom: 30px;
+  color: #17324d;
+  font-family: "Noto Naskh Arabic", "Amiri", "Times New Roman", serif;
+  font-size: clamp(23px, 5vw, 34px);
+  line-height: 1.8;
+  letter-spacing: 0;
+}
+
+.startup-logo {
+  display: block;
+  width: clamp(104px, 25vw, 142px);
+  height: auto;
+  border-radius: 26px;
+  box-shadow: 0 12px 30px rgba(23, 50, 77, 0.14);
+}
+
+.startup-brand {
+  margin-top: 22px;
+  color: #17324d;
+  font-size: clamp(21px, 5vw, 27px);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.startup-caption {
+  margin-top: 6px;
+  color: #788493;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.startup-loader {
+  width: 104px;
+  height: 3px;
+  margin-top: 34px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(244, 123, 32, 0.18);
+}
+
+.startup-loader span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: #f47b20;
+  animation: startup-splash-loading 1.1s ease-in-out infinite;
+}
+
+@keyframes startup-splash-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes startup-splash-loading {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-splash-content,
+  .startup-loader span {
+    animation: none;
+  }
+}

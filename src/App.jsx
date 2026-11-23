@@ -150,6 +150,7 @@ function App() {
       <div className="startup-splash" role="status" aria-label="Big Collection BD loading">
         <div className="startup-splash-content">
           <div className="startup-bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <div className="startup-bismillah-meaning" lang="bn">পরম করুণাময়, অসীম দয়ালু আল্লাহর নামে।</div>
           <img className="startup-logo" src="/app-icon.svg" alt="Big Collection BD" />
           <div className="startup-brand">Big Collection BD</div>
           <div className="startup-caption">Management System</div>

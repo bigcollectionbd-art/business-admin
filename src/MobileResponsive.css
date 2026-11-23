@@ -189,13 +189,10 @@
 }
 
 /* iPhone Safari standalone print: keep the invoice on one A4 sheet. */
-@page {
-  size: A4 portrait;
-  margin: 0;
-}
-
 @media print {
-  html, body, #root {
+  html:has(.ios-safari-print-page),
+  body:has(.ios-safari-print-page),
+  body:has(.ios-safari-print-page) #root {
     width: 210mm !important;
     height: 297mm !important;
     min-height: 297mm !important;

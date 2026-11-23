@@ -332,6 +332,29 @@ function App() {
         {menuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
+      <nav className="mobile-bottom-nav" aria-label="Mobile quick navigation">
+        <button className={page === "dashboard" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("dashboard")} type="button" aria-current={page === "dashboard" ? "page" : undefined}>
+          <LayoutDashboard size={20} />
+          <span>Home</span>
+        </button>
+        <button className={page === "sales" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("sales")} type="button" aria-current={page === "sales" ? "page" : undefined}>
+          <ShoppingCart size={20} />
+          <span>Sales</span>
+        </button>
+        <button className={page === "invoice" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("invoice")} type="button" aria-current={page === "invoice" ? "page" : undefined}>
+          <FileText size={20} />
+          <span>Invoices</span>
+        </button>
+        <button className={page === "products" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("products")} type="button" aria-current={page === "products" ? "page" : undefined}>
+          <Package size={20} />
+          <span>Products</span>
+        </button>
+        <button className={page === "reports" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("reports")} type="button" aria-current={page === "reports" ? "page" : undefined}>
+          <BarChart3 size={20} />
+          <span>Reports</span>
+        </button>
+      </nav>
+
       <main className="main-content">
         {page === "dashboard" && <Dashboard />}
         {page === "sales" && <Sales />}

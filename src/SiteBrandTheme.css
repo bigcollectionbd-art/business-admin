@@ -114,3 +114,143 @@
   border-color: revert;
   box-shadow: revert;
 }
+
+
+/* Premium sidebar polish: visual-only refinements; preserve menu structure and behavior. */
+.admin-app .sidebar {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(244, 123, 32, 0.16), transparent 34%),
+    linear-gradient(165deg, #17324d 0%, #122c44 52%, #0d2236 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 10px 0 34px rgba(16, 40, 62, 0.18);
+}
+
+.admin-app .logo-icon {
+  color: #17324d;
+  background: linear-gradient(145deg, #ffd09f 0%, #f47b20 82%);
+  box-shadow: 0 5px 16px rgba(244, 123, 32, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.admin-app .logo strong {
+  color: #fffaf4;
+  letter-spacing: 0.15px;
+}
+
+.admin-app .logo span {
+  color: #c4d0dc;
+}
+
+.admin-app .sidebar nav .nav-item {
+  color: #d0dbe5;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.admin-app .sidebar nav .nav-item svg {
+  color: #aebdcb;
+  transition: color 160ms ease;
+}
+
+.admin-app .sidebar nav .nav-item:hover {
+  color: #fffaf4;
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.admin-app .sidebar nav .nav-item:hover svg {
+  color: #ffbd83;
+}
+
+.admin-app .sidebar nav .nav-item.active {
+  color: #fff;
+  background: linear-gradient(105deg, #f47b20 0%, #e96b13 100%);
+  box-shadow: 0 6px 18px rgba(244, 123, 32, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.admin-app .sidebar nav .nav-item.active svg {
+  color: #fff;
+}
+
+.admin-app .sidebar > .nav-item {
+  color: #d0dbe5;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.admin-app .sidebar > .nav-item svg {
+  color: #aebdcb;
+}
+
+.admin-app .sidebar > .nav-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.admin-app .sidebar > .nav-item:hover svg {
+  color: #ffbd83;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app .sidebar .nav-item,
+  .admin-app .sidebar .nav-item svg {
+    transition: none;
+  }
+}
+
+
+/* Stronger premium sidebar treatment: visual-only, same menu and dimensions. */
+.admin-app aside.sidebar {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(244,123,32,.22), transparent 30%),
+    linear-gradient(155deg, #10263b 0%, #0b1d30 58%, #081827 100%) !important;
+  border-right: 1px solid rgba(255,255,255,.12);
+  box-shadow: 12px 0 36px rgba(8,24,39,.28) !important;
+}
+.admin-app aside.sidebar .logo {
+  border-bottom: 1px solid rgba(255,255,255,.13);
+  margin-bottom: 18px;
+  padding-bottom: 22px;
+}
+.admin-app aside.sidebar .logo-icon {
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffe0bd 0%, #ff9a45 48%, #e96512 100%) !important;
+  box-shadow: 0 0 0 4px rgba(244,123,32,.12), 0 8px 22px rgba(244,123,32,.28);
+}
+.admin-app aside.sidebar nav {
+  gap: 8px;
+}
+.admin-app aside.sidebar nav button.nav-item,
+.admin-app aside.sidebar > button.nav-item {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #c5d2df !important;
+  font-weight: 600;
+  letter-spacing: .1px;
+  background: rgba(255,255,255,.025);
+}
+.admin-app aside.sidebar nav button.nav-item svg,
+.admin-app aside.sidebar > button.nav-item svg {
+  color: #91a7bb !important;
+}
+.admin-app aside.sidebar nav button.nav-item:hover,
+.admin-app aside.sidebar > button.nav-item:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.105) !important;
+  border-color: rgba(255,255,255,.11);
+}
+.admin-app aside.sidebar nav button.nav-item:hover svg,
+.admin-app aside.sidebar > button.nav-item:hover svg {
+  color: #ffb36f !important;
+}
+.admin-app aside.sidebar nav button.nav-item.active {
+  color: #fff !important;
+  background: linear-gradient(100deg, #f47b20 0%, #e96712 100%) !important;
+  border-color: rgba(255,218,187,.36);
+  box-shadow: 0 7px 20px rgba(244,123,32,.3), inset 0 1px 0 rgba(255,255,255,.24);
+}
+.admin-app aside.sidebar nav button.nav-item.active svg {
+  color: #fff !important;
+}
+.admin-app aside.sidebar > button.nav-item {
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-radius: 0 0 11px 11px;
+  background: transparent;
+}

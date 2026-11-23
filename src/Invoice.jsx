@@ -426,6 +426,92 @@ function Invoice() {
     }
   }
 
+  function printInvoice() {
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    // Keep the existing print flow unchanged on Android and desktop.
+    if (!isIOS) {
+      window.print();
+      return;
+    }
+
+    // iOS Home Screen apps can fail to open the native print dialog
+    // from the app document. Open a dedicated invoice document instead.
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("অনুগ্রহ করে Safari-তে Pop-up অনুমতি দিয়ে আবার Print করুন।");
+      return;
+    }
+
+    const invoice = document.querySelector(".invoice-paper");
+    if (!invoice) {
+      printWindow.close();
+      alert("Invoice পাওয়া যায়নি। আবার চেষ্টা করুন।");
+      return;
+    }
+
+    const clonedInvoice = invoice.cloneNode(true);
+    const originalCanvases = invoice.querySelectorAll("canvas");
+    const clonedCanvases = clonedInvoice.querySelectorAll("canvas");
+
+    originalCanvases.forEach((canvas, index) => {
+      const clonedCanvas = clonedCanvases[index];
+      if (!clonedCanvas) return;
+      clonedCanvas.width = canvas.width;
+      clonedCanvas.height = canvas.height;
+      const context = clonedCanvas.getContext("2d");
+      if (context) context.drawImage(canvas, 0, 0);
+    });
+
+    const stylesheets = Array.from(
+      document.querySelectorAll('link[rel="stylesheet"]')
+    )
+      .map((link) => link.outerHTML)
+      .join("");
+    const inlineStyles = Array.from(document.querySelectorAll("style"))
+      .map((style) => style.outerHTML)
+      .join("");
+
+    printWindow.document.open();
+    printWindow.document.write(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Big Collection BD - Invoice</title>
+          ${stylesheets}
+          ${inlineStyles}
+        </head>
+        <body>
+          <div class="invoice-page"><div class="invoice-paper">${clonedInvoice.innerHTML}</div></div>
+        </body>
+      </html>`);
+    printWindow.document.close();
+
+    const waitForStyles = Array.from(
+      printWindow.document.querySelectorAll('link[rel="stylesheet"]')
+    ).map((link) =>
+      new Promise((resolve) => {
+        if (link.sheet) resolve();
+        else {
+          link.addEventListener("load", resolve, { once: true });
+          link.addEventListener("error", resolve, { once: true });
+        }
+      })
+    );
+
+    Promise.all(waitForStyles).then(() => {
+      printWindow.requestAnimationFrame(() => {
+        printWindow.requestAnimationFrame(() => {
+          printWindow.focus();
+          printWindow.print();
+        });
+      });
+    });
+  }
+
   function closeInvoice() {
     setSelectedSale(null);
     setItems([]);
@@ -463,7 +549,7 @@ function Invoice() {
 
           <button
             className="print-button"
-            onClick={() => window.print()}
+            onClick={printInvoice}
           >
             Print Invoice
           </button>

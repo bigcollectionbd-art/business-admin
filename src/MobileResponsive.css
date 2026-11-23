@@ -76,6 +76,8 @@
   .report-stat-card { min-width: 0; padding: 12px; gap: 8px; }
   .settings-form, .customer-form-box { padding: 14px !important; }
   .add-admin-grid { grid-template-columns: minmax(0, 1fr) !important; }
+
+  /* Keep the A4 invoice proportional, aligned to the mobile viewport, and fully visible horizontally. */
   .invoice-page { padding: 8px 6px 16px !important; overflow-x: hidden; }
   .invoice-list-card { padding: 12px !important; }
   .invoice-list-header { align-items: flex-start; flex-direction: column; gap: 10px; }
@@ -85,35 +87,51 @@
     margin: 0 0 12px !important;
     gap: 6px;
     flex-wrap: wrap;
+    justify-content: flex-start !important;
   }
-  .invoice-actions button { padding: 8px 9px !important; font-size: 12px; }
+  .invoice-actions button {
+    padding: 8px 10px !important;
+    min-height: 36px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .invoice-actions .secondary-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #172033 !important;
+    -webkit-text-fill-color: #172033 !important;
+    background: #ffffff !important;
+    border: 1px solid #64748b !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
   .invoice-paper {
     width: 210mm !important;
     min-height: 0 !important;
     height: 133.65mm !important;
-    position: relative;
-    left: 50%;
+    position: relative !important;
+    left: 0 !important;
     margin: 0 !important;
     padding: 6mm !important;
-    transform: translateX(-50%) scale(.45);
-    transform-origin: top left;
+    transform: scale(.41) !important;
+    transform-origin: top left !important;
     overflow: hidden !important;
   }
 }
 @media (max-width: 380px) {
   .dashboard-modern .stats-grid { grid-template-columns: minmax(0, 1fr) !important; }
-  .invoice-paper {
-    height: 118.1mm !important;
-    left: 50%;
-    transform: translateX(-50%) scale(.397);
-  }
+  .invoice-paper { transform: scale(.41) !important; }
 }
-@media (min-width: 381px) and (max-width: 430px) {
-  .invoice-paper {
-    height: 145.5mm !important;
-    left: 50%;
-    transform: translateX(-50%) scale(.49);
-  }
+@media (min-width: 381px) and (max-width: 400px) {
+  .invoice-paper { transform: scale(.44) !important; }
+}
+@media (min-width: 401px) and (max-width: 415px) {
+  .invoice-paper { transform: scale(.46) !important; }
+}
+@media (min-width: 416px) and (max-width: 700px) {
+  .invoice-paper { transform: scale(.49) !important; }
 }
 @media print {
   .mobile-menu-backdrop { display: none !important; }

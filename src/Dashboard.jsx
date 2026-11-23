@@ -291,6 +291,11 @@ function Dashboard() {
   return (
     <section className="dashboard-modern">
 
+      <div className="dashboard-mobile-brand-note">
+        <div className="dashboard-mobile-brand-name">Big Collection BD</div>
+        <p>“স্বপ্ন শুধু দেখার জন্য নয়, বাস্তবায়নের জন্য পরিশ্রম করতে হয়।”</p>
+      </div>
+
       <div className="stats-grid">
         <div className="stat-card modern-stat">
           <div className="stat-top">

@@ -190,3 +190,55 @@
     transition: none;
   }
 }
+
+
+/* Mobile Dashboard identity panel: intentionally hidden on desktop. */
+.dashboard-mobile-brand-note {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .admin-app:has(.dashboard-modern) .dashboard-mobile-brand-note {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 0 15px;
+    padding: 17px 16px 16px;
+    overflow: hidden;
+    border: 1px solid rgba(244, 123, 32, 0.24);
+    border-radius: 17px;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(244, 123, 32, 0.2), transparent 46%),
+      linear-gradient(130deg, #17324d 0%, #10283e 100%);
+    box-shadow: 0 9px 22px rgba(23, 50, 77, 0.14);
+  }
+
+  .admin-app:has(.dashboard-modern) .dashboard-mobile-brand-note::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    content: "";
+    background: linear-gradient(180deg, #ffbd78, #f47b20);
+  }
+
+  .admin-app:has(.dashboard-modern) .dashboard-mobile-brand-name {
+    margin: 0 0 9px;
+    color: #fffaf4;
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+  }
+
+  .admin-app:has(.dashboard-modern) .dashboard-mobile-brand-note p {
+    margin: 0;
+    color: #fce8d5;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.65;
+    letter-spacing: 0;
+  }
+}

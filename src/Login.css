@@ -101,3 +101,87 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+/* Mobile login branding: keep the login page readable in iOS/Android dark mode.
+   Desktop styles above remain unchanged. */
+@media (max-width: 700px) {
+  .login-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    background: linear-gradient(145deg, #fffaf3 0%, #fff1df 100%);
+    color: #17324d;
+    color-scheme: light;
+  }
+
+  .login-box {
+    max-width: 420px;
+    padding: 32px 24px;
+    background: #ffffff;
+    border: 1px solid #f1dfca;
+    border-radius: 18px;
+    box-shadow: 0 14px 38px rgba(23, 50, 77, 0.12);
+  }
+
+  .login-logo {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 18px;
+    border-radius: 18px;
+    background-color: transparent;
+    background-image: url("/app-icon.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    box-shadow: 0 7px 20px rgba(23, 50, 77, 0.12);
+    font-size: 0;
+    color: transparent;
+  }
+
+  .login-box h1 {
+    color: #17324d;
+    font-size: clamp(23px, 6vw, 28px);
+    line-height: 1.25;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .login-box > p {
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .login-box label {
+    color: #26384b;
+    font-size: 13px;
+  }
+
+  .login-box input {
+    min-height: 46px;
+    background: #ffffff;
+    color: #172033;
+    border-color: #d6dce5;
+    font-size: 16px;
+  }
+
+  .login-box input::placeholder {
+    color: #8b95a3;
+    opacity: 1;
+  }
+
+  .login-box input:focus {
+    border-color: #f47b20;
+    box-shadow: 0 0 0 3px rgba(244, 123, 32, 0.12);
+  }
+
+  .login-box button {
+    min-height: 47px;
+    border-color: #f47b20;
+    background: #f47b20;
+    color: #ffffff;
+    font-size: 15px;
+  }
+}

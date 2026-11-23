@@ -23,6 +23,7 @@ import Customers from "./Customers";
 import SettingsPage from "./Settings";
 import Reports from "./Reports";
 import "./App.css";
+import "./SiteBrandTheme.css";
 import "./Invoice.css";
 import "./MobileResponsive.css";
 

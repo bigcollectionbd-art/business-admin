@@ -24,6 +24,7 @@ import {
 } from "recharts";
 
 import { supabase } from "./supabase";
+import "./DashboardBrandTheme.css";
 
 function Dashboard() {
   const [todaySales, setTodaySales] = useState([]);
@@ -255,12 +256,12 @@ function Dashboard() {
     .sort((a, b) => b.value - a.value);
 
   const paymentColors = [
-    "#2563eb",
-    "#10b981",
-    "#8b5cf6",
-    "#f59e0b",
-    "#ef4444",
-    "#06b6d4",
+    "#f47b20",
+    "#17324d",
+    "#f9a45d",
+    "#d97706",
+    "#c65b42",
+    "#8b9aaa",
   ];
 
   function formatMoney(value) {
@@ -384,12 +385,12 @@ function Dashboard() {
                   >
                     <stop
                       offset="0%"
-                      stopColor="#2563eb"
+                      stopColor="#f47b20"
                       stopOpacity={0.25}
                     />
                     <stop
                       offset="100%"
-                      stopColor="#2563eb"
+                      stopColor="#f47b20"
                       stopOpacity={0.02}
                     />
                   </linearGradient>
@@ -430,7 +431,7 @@ function Dashboard() {
                 <Area
                   type="monotone"
                   dataKey="sales"
-                  stroke="#2563eb"
+                  stroke="#f47b20"
                   strokeWidth={2.5}
                   fill="url(#dashboardSalesGradient)"
                 />

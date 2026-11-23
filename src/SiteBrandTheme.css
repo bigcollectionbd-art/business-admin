@@ -1,0 +1,116 @@
+/* Big Collection BD site-wide brand colors.
+   Color-only overrides for authenticated app pages. No layout, spacing,
+   typography scale, routes, data, calculations, or workflows are changed. */
+.admin-app {
+  background: #fff8ef;
+  color: #17324d;
+}
+.admin-app .main-content {
+  background: #fff8ef;
+  color: #17324d;
+}
+.admin-app .sidebar {
+  background: linear-gradient(180deg, #17324d 0%, #10283e 100%);
+  color: #fffaf4;
+  box-shadow: 8px 0 28px rgba(23, 50, 77, 0.12);
+}
+.admin-app .logo-icon {
+  color: #17324d;
+  background: linear-gradient(145deg, #ffbd78, #f47b20);
+}
+.admin-app .logo strong { color: #fffaf4; }
+.admin-app .logo span { color: #c8d3df; }
+.admin-app .nav-item { color: #d1dbe5; }
+.admin-app .nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,.09);
+}
+.admin-app .nav-item.active {
+  color: #fff;
+  background: linear-gradient(105deg, #f47b20, #e96b13);
+  box-shadow: 0 5px 14px rgba(244,123,32,.2);
+}
+.admin-app .menu-button {
+  color: #17324d;
+  background: #fff;
+  border-color: #f2dfcb;
+}
+.admin-app h1, .admin-app h2, .admin-app h3,
+.admin-app h4, .admin-app label, .admin-app strong {
+  color: #17324d;
+}
+.admin-app p, .admin-app small, .admin-app .muted {
+  color: #718096;
+}
+.admin-app input, .admin-app select, .admin-app textarea {
+  color: #17324d;
+  background-color: #fffdf9;
+  border-color: #ead9c8;
+}
+.admin-app input:focus, .admin-app select:focus,
+.admin-app textarea:focus {
+  border-color: #f47b20;
+  outline-color: rgba(244,123,32,.2);
+}
+.admin-app button:not(.nav-item):not(.menu-button) {
+  accent-color: #f47b20;
+}
+.admin-app button.primary, .admin-app .primary-button,
+.admin-app .submit-button, .admin-app .save-button,
+.admin-app .print-button, .admin-app .action-button {
+  color: #fff;
+  background: #f47b20;
+  border-color: #f47b20;
+}
+.admin-app button.primary:hover, .admin-app .primary-button:hover,
+.admin-app .submit-button:hover, .admin-app .save-button:hover,
+.admin-app .action-button:hover {
+  background: #e96b13;
+  border-color: #e96b13;
+}
+.admin-app .stat-card, .admin-app .panel,
+.admin-app .card, .admin-app .content-card,
+.admin-app .form-card, .admin-app .table-card,
+.admin-app .section-card {
+  background-color: #fff;
+  border-color: #f1e4d6;
+}
+.admin-app table th {
+  color: #536477;
+  background-color: #fff5e9;
+}
+.admin-app table td {
+  color: #687789;
+  border-color: #f1e4d6;
+}
+.admin-app table td strong { color: #17324d; }
+.admin-app a { color: #df6d18; }
+.admin-app .sales-icon, .admin-app .order-icon,
+.admin-app .due-icon, .admin-app .product-icon,
+.admin-app .dashboard-section-icon {
+  color: #e96f18;
+  background: #fff0df;
+}
+.admin-app .count-badge, .admin-app .chart-total {
+  color: #e96f18;
+}
+.admin-app .low-stock-item {
+  background: #fff3e6;
+  border-left-color: #f47b20;
+}
+.admin-app .low-stock-item span { color: #d96816; }
+
+/* Keep the invoice paper and print colors exactly as designed. */
+@media (max-width: 700px) {
+  .admin-app, .admin-app .main-content { background-color: #fff8ef; }
+  .admin-app .sidebar { box-shadow: 12px 0 32px rgba(16,40,62,.2); }
+}
+
+/* Preserve all existing invoice artwork and print styling. */
+.admin-app .invoice-paper,
+.admin-app .invoice-paper * {
+  color: revert;
+  background-color: revert;
+  border-color: revert;
+  box-shadow: revert;
+}

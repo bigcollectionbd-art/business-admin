@@ -430,28 +430,24 @@ function Invoice() {
     const isIOS =
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isIOSStandalone =
+      isIOS &&
+      (navigator.standalone === true ||
+        window.matchMedia("(display-mode: standalone)").matches);
 
-    // Keep the existing print flow unchanged on Android and desktop.
-    if (!isIOS) {
+    // Keep Safari, Android, and desktop printing on the existing native flow.
+    if (!isIOSStandalone) {
       window.print();
-      return;
-    }
-
-    // iOS Home Screen apps can fail to open the native print dialog
-    // from the app document. Open a dedicated invoice document instead.
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      alert("অনুগ্রহ করে Safari-তে Pop-up অনুমতি দিয়ে আবার Print করুন।");
       return;
     }
 
     const invoice = document.querySelector(".invoice-paper");
     if (!invoice) {
-      printWindow.close();
       alert("Invoice পাওয়া যায়নি। আবার চেষ্টা করুন।");
       return;
     }
 
+    // Preserve the QR code when transferring the invoice to Safari.
     const clonedInvoice = invoice.cloneNode(true);
     const originalCanvases = invoice.querySelectorAll("canvas");
     const clonedCanvases = clonedInvoice.querySelectorAll("canvas");
@@ -459,7 +455,7 @@ function Invoice() {
     originalCanvases.forEach((canvas, index) => {
       const clonedCanvas = clonedCanvases[index];
       if (!clonedCanvas) return;
-      const image = printWindow.document.createElement("img");
+      const image = document.createElement("img");
       image.src = canvas.toDataURL("image/png");
       image.width = canvas.width;
       image.height = canvas.height;
@@ -467,52 +463,13 @@ function Invoice() {
       clonedCanvas.replaceWith(image);
     });
 
-    const stylesheets = Array.from(
-      document.querySelectorAll('link[rel="stylesheet"]')
-    )
-      .map((link) => link.outerHTML)
-      .join("");
-    const inlineStyles = Array.from(document.querySelectorAll("style"))
-      .map((style) => style.outerHTML)
-      .join("");
+    // The x-safari URL scheme asks iOS to open this invoice in Safari,
+    // where the user can use Safari's working print dialog.
+    const safariUrl = new URL("/", window.location.origin);
+    safariUrl.searchParams.set("invoicePrint", "1");
+    safariUrl.hash = encodeURIComponent(clonedInvoice.innerHTML);
 
-    printWindow.document.open();
-    printWindow.document.write(`<!doctype html>
-      <html>
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <base href="${document.baseURI}" />
-          <title>Big Collection BD - Invoice</title>
-          ${stylesheets}
-          ${inlineStyles}
-        </head>
-        <body>
-          <div class="invoice-page"><div class="invoice-paper">${clonedInvoice.innerHTML}</div></div>
-        </body>
-      </html>`);
-    printWindow.document.close();
-
-    const waitForStyles = Array.from(
-      printWindow.document.querySelectorAll('link[rel="stylesheet"]')
-    ).map((link) =>
-      new Promise((resolve) => {
-        if (link.sheet) resolve();
-        else {
-          link.addEventListener("load", resolve, { once: true });
-          link.addEventListener("error", resolve, { once: true });
-        }
-      })
-    );
-
-    Promise.all(waitForStyles).then(() => {
-      printWindow.requestAnimationFrame(() => {
-        printWindow.requestAnimationFrame(() => {
-          printWindow.focus();
-          printWindow.print();
-        });
-      });
-    });
+    window.location.href = `x-safari-${safariUrl.toString()}`;
   }
 
   function closeInvoice() {

@@ -114,3 +114,82 @@
   border-color: revert;
   box-shadow: revert;
 }
+
+
+/* Premium sidebar polish: visual-only refinements; preserve menu structure and behavior. */
+.admin-app .sidebar {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(244, 123, 32, 0.16), transparent 34%),
+    linear-gradient(165deg, #17324d 0%, #122c44 52%, #0d2236 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 10px 0 34px rgba(16, 40, 62, 0.18);
+}
+
+.admin-app .logo-icon {
+  color: #17324d;
+  background: linear-gradient(145deg, #ffd09f 0%, #f47b20 82%);
+  box-shadow: 0 5px 16px rgba(244, 123, 32, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.admin-app .logo strong {
+  color: #fffaf4;
+  letter-spacing: 0.15px;
+}
+
+.admin-app .logo span {
+  color: #c4d0dc;
+}
+
+.admin-app .sidebar nav .nav-item {
+  color: #d0dbe5;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.admin-app .sidebar nav .nav-item svg {
+  color: #aebdcb;
+  transition: color 160ms ease;
+}
+
+.admin-app .sidebar nav .nav-item:hover {
+  color: #fffaf4;
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.admin-app .sidebar nav .nav-item:hover svg {
+  color: #ffbd83;
+}
+
+.admin-app .sidebar nav .nav-item.active {
+  color: #fff;
+  background: linear-gradient(105deg, #f47b20 0%, #e96b13 100%);
+  box-shadow: 0 6px 18px rgba(244, 123, 32, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.admin-app .sidebar nav .nav-item.active svg {
+  color: #fff;
+}
+
+.admin-app .sidebar > .nav-item {
+  color: #d0dbe5;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.admin-app .sidebar > .nav-item svg {
+  color: #aebdcb;
+}
+
+.admin-app .sidebar > .nav-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.admin-app .sidebar > .nav-item:hover svg {
+  color: #ffbd83;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app .sidebar .nav-item,
+  .admin-app .sidebar .nav-item svg {
+    transition: none;
+  }
+}

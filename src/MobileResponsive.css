@@ -109,15 +109,15 @@
   }
   .invoice-paper {
     width: 210mm !important;
-    min-height: 0 !important;
-    height: 133.65mm !important;
+    min-height: 297mm !important;
+    height: 297mm !important;
     position: relative !important;
     left: 0 !important;
     margin: 0 !important;
     padding: 6mm !important;
     transform: scale(.41) !important;
     transform-origin: top left !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 }
 @media (max-width: 380px) {

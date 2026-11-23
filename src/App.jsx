@@ -25,6 +25,34 @@ import Reports from "./Reports";
 import "./App.css";
 import "./MobileResponsive.css";
 
+function InvoicePrintView() {
+  let invoiceMarkup = "";
+
+  try {
+    invoiceMarkup = decodeURIComponent(window.location.hash.slice(1));
+  } catch (error) {
+    console.error("Could not read invoice print data:", error);
+  }
+
+  if (!invoiceMarkup) {
+    return <div className="invoice-page">Invoice data could not be opened. Please return to the app and try again.</div>;
+  }
+
+  return (
+    <div className="invoice-page">
+      <div className="invoice-actions no-print">
+        <button className="print-button" onClick={() => window.print()}>
+          Print Invoice
+        </button>
+      </div>
+      <div
+        className="invoice-paper"
+        dangerouslySetInnerHTML={{ __html: invoiceMarkup }}
+      />
+    </div>
+  );
+}
+
 function App() {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -100,6 +128,13 @@ function App() {
     if (window.matchMedia("(max-width: 700px)").matches) {
       setMenuOpen(false);
     }
+  }
+
+  const isInvoicePrintView =
+    new URLSearchParams(window.location.search).get("invoicePrint") === "1";
+
+  if (isInvoicePrintView) {
+    return <InvoicePrintView />;
   }
 
   if (checkingAuth) {

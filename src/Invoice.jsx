@@ -426,6 +426,52 @@ function Invoice() {
     }
   }
 
+  function printInvoice() {
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isIOSStandalone =
+      isIOS &&
+      (navigator.standalone === true ||
+        window.matchMedia("(display-mode: standalone)").matches);
+
+    // Keep Safari, Android, and desktop printing on the existing native flow.
+    if (!isIOSStandalone) {
+      window.print();
+      return;
+    }
+
+    const invoice = document.querySelector(".invoice-paper");
+    if (!invoice) {
+      alert("Invoice পাওয়া যায়নি। আবার চেষ্টা করুন।");
+      return;
+    }
+
+    // Preserve the QR code when transferring the invoice to Safari.
+    const clonedInvoice = invoice.cloneNode(true);
+    const originalCanvases = invoice.querySelectorAll("canvas");
+    const clonedCanvases = clonedInvoice.querySelectorAll("canvas");
+
+    originalCanvases.forEach((canvas, index) => {
+      const clonedCanvas = clonedCanvases[index];
+      if (!clonedCanvas) return;
+      const image = document.createElement("img");
+      image.src = canvas.toDataURL("image/png");
+      image.width = canvas.width;
+      image.height = canvas.height;
+      image.alt = "Invoice QR code";
+      clonedCanvas.replaceWith(image);
+    });
+
+    // The x-safari URL scheme asks iOS to open this invoice in Safari,
+    // where the user can use Safari's working print dialog.
+    const safariUrl = new URL("/", window.location.origin);
+    safariUrl.searchParams.set("invoicePrint", "1");
+    safariUrl.hash = encodeURIComponent(clonedInvoice.innerHTML);
+
+    window.location.href = `x-safari-${safariUrl.toString()}`;
+  }
+
   function closeInvoice() {
     setSelectedSale(null);
     setItems([]);
@@ -463,7 +509,7 @@ function Invoice() {
 
           <button
             className="print-button"
-            onClick={() => window.print()}
+            onClick={printInvoice}
           >
             Print Invoice
           </button>

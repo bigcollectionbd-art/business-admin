@@ -1129,11 +1129,12 @@ nav {
 .startup-bismillah-meaning {
   margin-top: -22px;
   margin-bottom: 30px;
-  color: #788493;
+  color: #c66b20;
   font-size: clamp(13px, 3.2vw, 16px);
-  font-weight: 500;
+  font-weight: 700;
   line-height: 1.8;
   letter-spacing: 0;
+  text-shadow: 0 1px 8px rgba(244, 123, 32, 0.12);
 }
 
 .startup-logo {

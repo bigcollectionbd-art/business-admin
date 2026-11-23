@@ -63,7 +63,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const splashTimer = window.setTimeout(() => setSplashReady(true), 900);
+    const splashTimer = window.setTimeout(() => setSplashReady(true), 2500);
     return () => window.clearTimeout(splashTimer);
   }, []);
 

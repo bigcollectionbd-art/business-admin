@@ -459,10 +459,12 @@ function Invoice() {
     originalCanvases.forEach((canvas, index) => {
       const clonedCanvas = clonedCanvases[index];
       if (!clonedCanvas) return;
-      clonedCanvas.width = canvas.width;
-      clonedCanvas.height = canvas.height;
-      const context = clonedCanvas.getContext("2d");
-      if (context) context.drawImage(canvas, 0, 0);
+      const image = printWindow.document.createElement("img");
+      image.src = canvas.toDataURL("image/png");
+      image.width = canvas.width;
+      image.height = canvas.height;
+      image.alt = "Invoice QR code";
+      clonedCanvas.replaceWith(image);
     });
 
     const stylesheets = Array.from(
@@ -480,6 +482,7 @@ function Invoice() {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <base href="${document.baseURI}" />
           <title>Big Collection BD - Invoice</title>
           ${stylesheets}
           ${inlineStyles}

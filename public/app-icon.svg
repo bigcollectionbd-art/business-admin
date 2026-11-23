@@ -1,23 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="BCB Big Collection BD">
   <defs>
-    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffd98a"/>
-      <stop offset="0.52" stop-color="#f39a28"/>
-      <stop offset="1" stop-color="#d66a16"/>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#174c91"/>
+      <stop offset="1" stop-color="#102b52"/>
     </linearGradient>
-    <radialGradient id="background" cx="50%" cy="25%" r="90%">
-      <stop offset="0" stop-color="#29231e"/>
-      <stop offset="1" stop-color="#101010"/>
-    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f6a12a"/>
+      <stop offset="1" stop-color="#e66b22"/>
+    </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="104" fill="url(#background)"/>
-  <rect x="14" y="14" width="484" height="484" rx="91" fill="none" stroke="#d88935" stroke-opacity=".62" stroke-width="3"/>
-  <text x="256" y="260" text-anchor="middle"
+  <rect width="512" height="512" rx="104" fill="#ffffff"/>
+  <rect x="14" y="14" width="484" height="484" rx="91" fill="none" stroke="#e7edf4" stroke-width="3"/>
+  <text x="256" y="258" text-anchor="middle"
         font-family="Arial, Helvetica, sans-serif" font-size="142"
-        font-weight="900" letter-spacing="-5" fill="url(#gold)">BCB</text>
-  <path d="M112 298H400" stroke="#d88935" stroke-opacity=".65" stroke-width="2"/>
-  <text x="256" y="355" text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif" font-size="31"
-        font-weight="700" letter-spacing=".5" fill="#fff4e5">Big Collection BD</text>
-  <circle cx="256" cy="405" r="4" fill="#f2a13b"/>
+        font-weight="900" letter-spacing="-5" fill="url(#blue)">BCB</text>
+  <path d="M112 294H400" stroke="url(#accent)" stroke-width="7" stroke-linecap="round"/>
+  <text x="256" y="354" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="30"
+        font-weight="700" letter-spacing=".2" fill="#27364a">Big Collection BD</text>
+  <circle cx="256" cy="405" r="4" fill="#ed8525"/>
 </svg>

@@ -349,9 +349,9 @@ function App() {
           <Package size={20} />
           <span>Products</span>
         </button>
-        <button className={page === "customers" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("customers")} type="button" aria-current={page === "customers" ? "page" : undefined}>
-          <Users size={20} />
-          <span>Customers</span>
+        <button className={page === "reports" ? "mobile-bottom-nav-item active" : "mobile-bottom-nav-item"} onClick={() => handlePageChange("reports")} type="button" aria-current={page === "reports" ? "page" : undefined}>
+          <BarChart3 size={20} />
+          <span>Reports</span>
         </button>
       </nav>
 

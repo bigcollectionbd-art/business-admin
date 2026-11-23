@@ -47,7 +47,7 @@ function InvoicePrintView() {
         </button>
       </div>
       <div
-        className="invoice-paper"
+        className="invoice-paper ios-safari-print"
         dangerouslySetInnerHTML={{ __html: invoiceMarkup }}
       />
     </div>

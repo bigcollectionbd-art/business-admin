@@ -96,6 +96,9 @@ function App() {
 
   function handlePageChange(nextPage) {
     setPage(nextPage);
+    if (window.matchMedia("(max-width: 700px)").matches) {
+      setMenuOpen(false);
+    }
   }
 
   if (checkingAuth) {
@@ -261,6 +264,15 @@ function App() {
           Logout
         </button>
       </aside>
+
+      {menuOpen && (
+        <button
+          className="mobile-menu-backdrop"
+          onClick={() => setMenuOpen(false)}
+          aria-label="Close navigation menu"
+          type="button"
+        />
+      )}
 
       <button
         className="menu-button"

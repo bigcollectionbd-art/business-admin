@@ -40,7 +40,7 @@ function InvoicePrintView() {
   }
 
   return (
-    <div className="invoice-page">
+    <div className="invoice-page ios-safari-print-page">
       <div className="invoice-actions no-print">
         <button className="print-button" onClick={() => window.print()}>
           Print Invoice
@@ -204,6 +204,7 @@ function App() {
                 : "nav-item"
             }
             onClick={() => handlePageChange("dashboard")}
+            type="button"
           >
             <LayoutDashboard size={20} />
             Dashboard
@@ -216,6 +217,7 @@ function App() {
                 : "nav-item"
             }
             onClick={() => handlePageChange("sales")}
+            type="button"
           >
             <ShoppingCart size={20} />
             Sales
@@ -228,6 +230,7 @@ function App() {
                 : "nav-item"
             }
             onClick={() => handlePageChange("invoice")}
+            type="button"
           >
             <FileText size={20} />
             Invoices
@@ -240,6 +243,7 @@ function App() {
                 : "nav-item"
             }
             onClick={() => handlePageChange("products")}
+            type="button"
           >
             <Package size={20} />
             Products
@@ -252,12 +256,13 @@ function App() {
                 : "nav-item"
             }
             onClick={() => handlePageChange("customers")}
+            type="button"
           >
             <Users size={20} />
             Customers
           </button>
 
-          <button className="nav-item">
+          <button className="nav-item" type="button">
             <Wallet size={20} />
             Expenses
           </button>
@@ -283,6 +288,7 @@ function App() {
                   : "nav-item"
               }
               onClick={() => handlePageChange("settings")}
+              type="button"
             >
               <Settings size={20} />
               Settings
@@ -293,6 +299,7 @@ function App() {
         <button
           className="nav-item"
           onClick={handleLogout}
+          type="button"
           style={{
             marginTop: "auto",
           }}

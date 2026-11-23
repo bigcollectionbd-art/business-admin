@@ -45,6 +45,7 @@ function Login({ onLogin }) {
 
         <h1>Big Collection BD</h1>
         <p>Admin Panel</p>
+        <div className="login-tagline">স্বপ্ন থেকে সাফল্যের পথে</div>
 
         <form onSubmit={handleLogin}>
           <label>Email</label>

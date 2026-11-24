@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./supabase";
-import { PackageCheck, Truck, Clock3, PauseCircle, RotateCcw, CheckCircle2, RefreshCw, AlertCircle, X } from "lucide-react";
+import { PackageCheck, Truck, Clock3, PauseCircle, RotateCcw, CheckCircle2, RefreshCw, AlertCircle, X, XCircle } from "lucide-react";
 import "./PathaoLivePanel.css";
 
 const groups = [
   { key: "pending", title: "Pickup বাকি", desc: "বুকিং হয়েছে, এখনো সংগ্রহ হয়নি", icon: Clock3 },
+  { key: "cancelled", title: "Pickup Cancelled", desc: "Pickup বাতিল হয়েছে—আলাদা করে দেখানো হচ্ছে", icon: XCircle },
   { key: "picked", title: "Pickup সম্পন্ন", desc: "Pathao পার্সেল সংগ্রহ করেছে", icon: PackageCheck },
   { key: "transit", title: "ডেলিভারির পথে", desc: "পার্সেল গন্তব্যের পথে", icon: Truck },
   { key: "hold", title: "Hold-এ আছে", desc: "ডেলিভারি সাময়িকভাবে আটকে আছে", icon: PauseCircle },
@@ -16,8 +17,9 @@ function classify(parcel) {
   const raw = [parcel.order_status_slug, parcel.order_status, parcel.booking_status]
     .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
   if (/return|returned/.test(raw)) return "returned";
+  if (/cancel/.test(raw)) return "cancelled";
   if (/deliver/.test(raw)) return "delivered";
-  if (/hold|exception|damage|lost|cancel/.test(raw)) return "hold";
+  if (/hold|exception|damage|lost/.test(raw)) return "hold";
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
   if (/pickup|picked up|collected/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   return "pending";
@@ -60,7 +62,7 @@ export default function PathaoLivePanel() {
       const rows = parcelResult.data || [];
       const activeOrRecent = rows.filter((p) => {
         const booked = p.booked_at || p.created_at;
-        return !booked || new Date(booked) >= since || !["delivered", "returned"].includes(classify(p));
+        return !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
       setHistory(historyResult.data || []);

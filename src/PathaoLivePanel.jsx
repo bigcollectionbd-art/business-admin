@@ -72,7 +72,7 @@ export default function PathaoLivePanel() {
           while (true) {
             const { data, error: pageError } = await supabase
               .from("pathao_parcels")
-              .select("id,sale_id,invoice_no,consignment_id,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
+              .select("id,sale_id,invoice_no,recipient_name,recipient_phone,consignment_id,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
               .not("consignment_id", "is", null)
               .order("booked_at", { ascending: false })
               .range(from, from + pageSize - 1);
@@ -117,10 +117,10 @@ export default function PathaoLivePanel() {
 
   return <section className="pathao-live-panel">
     <div className="pathao-live-heading">
-      <div><span className="pathao-eyebrow">DELIVERY CONTROL CENTER</span><h2>Pathao পার্সেল আপডেট</h2><p>গত ৩০ দিনের বুকিং এবং আগের সব চলমান পার্সেলের বর্তমান অবস্থা</p></div>
+      <div><span className="pathao-eyebrow">PATHAO DELIVERY CENTER</span></div>
       <button className="pathao-refresh" onClick={load} disabled={loading}><RefreshCw size={16} className={loading ? "pathao-spin" : ""}/> Refresh</button>
     </div>
-    <div className="pathao-live-meta"><span><i/> বাস্তব ডেটা</span><span>সর্বশেষ ডেটা লোড: {lastSync ? fmt(lastSync) : "—"}</span></div>
+    <div className="pathao-live-meta"><span>সর্বশেষ ডেটা লোড: {lastSync ? fmt(lastSync) : "—"}</span></div>
     {error && <div className="pathao-error"><AlertCircle size={17}/>{error}</div>}
     <div className="pathao-live-grid">
       {groups.map(g => { const Icon = g.icon; return <button type="button" key={g.key} className={"pathao-status-card pathao-" + g.key} onClick={() => setSelected({ group: g })}>
@@ -136,7 +136,7 @@ export default function PathaoLivePanel() {
             const hs = history.filter(h => h.parcel_id === p.id);
             const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /deliver/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
             const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
-            return <article className="pathao-parcel-row" key={p.id}><div className="pathao-parcel-title"><b>{p.invoice_no || "Invoice unavailable"}</b><span>{p.order_status || p.order_status_slug || p.booking_status || "Status unavailable"}</span></div><div>Consignment: {p.consignment_id || "—"}</div><div>Booking date: {fmt(p.booked_at || p.created_at)}</div><div>Pickup date: {pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</div>{classify(p) === "delivered" && <div>Delivery status date (Pathao update): {delivered ? fmt(delivered.event_at) : "Pathao থেকে Delivery date পাওয়া যায়নি"}</div>}{(classify(p) === "hold" || classify(p) === "returned") && <div>Latest issue / return update: {hs.find(h => h.event_time_source !== "initial_snapshot") ? fmt(hs.find(h => h.event_time_source !== "initial_snapshot").event_at) : "তারিখ পাওয়া যায়নি"}</div>}<div>Last Pathao update: {fmt(p.tracking_updated_at)}</div><div className="pathao-history-timeline"><b>Status History</b>{hs.length ? hs.map((h, i) => <div key={h.id || i}><span>{h.order_status || h.order_status_slug || "Status"}</span><small>{h.event_time_source === "initial_snapshot" ? "তারিখ পাওয়া যায়নি" : fmt(h.event_at)} · {h.event_time_source === "pathao_reported" ? "Pathao reported" : h.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</small></div>) : <small>পুরোনো Status history সংরক্ষিত ছিল না; নতুন update থেকে history তৈরি হবে।</small>}</div></article>;
+            return <article className="pathao-parcel-row" key={p.id}><div className="pathao-parcel-title"><b>{p.invoice_no || "Invoice unavailable"}</b><span>{p.order_status || p.order_status_slug || p.booking_status || "Status unavailable"}</span></div><div className="pathao-customer-info"><b>Customer: {p.recipient_name || "নাম পাওয়া যায়নি"}</b><span>Mobile: {p.recipient_phone || "নম্বর পাওয়া যায়নি"}</span></div><div>Consignment: {p.consignment_id || "—"}</div><div>Booking date: {fmt(p.booked_at || p.created_at)}</div><div>Pickup date: {pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</div>{classify(p) === "delivered" && <div>Delivery status date (Pathao update): {delivered ? fmt(delivered.event_at) : "Pathao থেকে Delivery date পাওয়া যায়নি"}</div>}{(classify(p) === "hold" || classify(p) === "returned") && <div>Latest issue / return update: {hs.find(h => h.event_time_source !== "initial_snapshot") ? fmt(hs.find(h => h.event_time_source !== "initial_snapshot").event_at) : "তারিখ পাওয়া যায়নি"}</div>}<div>Last Pathao update: {fmt(p.tracking_updated_at)}</div><div className="pathao-history-timeline"><b>Status History</b>{hs.length ? hs.map((h, i) => <div key={h.id || i}><span>{h.order_status || h.order_status_slug || "Status"}</span><small>{h.event_time_source === "initial_snapshot" ? "তারিখ পাওয়া যায়নি" : fmt(h.event_at)} · {h.event_time_source === "pathao_reported" ? "Pathao reported" : h.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</small></div>) : <small>পুরোনো Status history সংরক্ষিত ছিল না; নতুন update থেকে history তৈরি হবে।</small>}</div></article>;
           }) : <div className="pathao-empty">এই Status-এ কোনো পার্সেল পাওয়া যায়নি।</div>}
         </div>
       </div>

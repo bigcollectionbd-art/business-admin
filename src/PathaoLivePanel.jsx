@@ -41,34 +41,67 @@ export default function PathaoLivePanel() {
   async function load() {
     setLoading(true);
     setError("");
-    const since = new Date();
-    since.setDate(since.getDate() - 30);
-    const [parcelResult, historyResult] = await Promise.all([
-      supabase.from("pathao_parcels")
-        .select("id,sale_id,invoice_no,consignment_id,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
-        .not("consignment_id", "is", null)
-        .order("booked_at", { ascending: false })
-        .limit(500),
-      supabase.from("pathao_status_history")
-        .select("parcel_id,order_status,order_status_slug,event_at,event_time_source")
-        .order("event_at", { ascending: false })
-        .limit(2500),
-    ]);
-    if (parcelResult.error || historyResult.error) {
-      setError("Pathao তথ্য লোড করা যায়নি। সংযোগ বা অনুমতি যাচাই করুন।");
-      setParcels([]);
-      setHistory([]);
-    } else {
-      const rows = parcelResult.data || [];
-      const activeOrRecent = rows.filter((p) => {
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - 30);
+
+      async function fetchEveryPage(table, columns, orderColumn) {
+        const all = [];
+        let from = 0;
+        const pageSize = 1000;
+        while (true) {
+          const { data, error: pageError } = await supabase
+            .from(table)
+            .select(columns)
+            .order(orderColumn, { ascending: false })
+            .range(from, from + pageSize - 1);
+          if (pageError) throw pageError;
+          const page = data || [];
+          all.push(...page);
+          if (page.length < pageSize) break;
+          from += pageSize;
+        }
+        return all;
+      }
+
+      const [allParcels, allHistory] = await Promise.all([
+        (async () => {
+          const all = [];
+          let from = 0;
+          const pageSize = 1000;
+          while (true) {
+            const { data, error: pageError } = await supabase
+              .from("pathao_parcels")
+              .select("id,sale_id,invoice_no,consignment_id,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
+              .not("consignment_id", "is", null)
+              .order("booked_at", { ascending: false })
+              .range(from, from + pageSize - 1);
+            if (pageError) throw pageError;
+            const page = data || [];
+            all.push(...page);
+            if (page.length < pageSize) break;
+            from += pageSize;
+          }
+          return all;
+        })(),
+        fetchEveryPage("pathao_status_history", "id,parcel_id,order_status,order_status_slug,event_at,event_time_source", "event_at"),
+      ]);
+
+      const activeOrRecent = allParcels.filter((p) => {
         const booked = p.booked_at || p.created_at;
         return !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
-      setHistory(historyResult.data || []);
+      setHistory(allHistory);
       setLastSync(new Date());
+    } catch (loadError) {
+      console.error("Pathao dashboard load error:", loadError);
+      setError("Pathao তথ্য লোড করা যায়নি। সংযোগ বা অনুমতি যাচাই করুন।");
+      setParcels([]);
+      setHistory([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {

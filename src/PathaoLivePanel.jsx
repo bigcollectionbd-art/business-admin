@@ -124,7 +124,7 @@ export default function PathaoLivePanel() {
     {error && <div className="pathao-error"><AlertCircle size={17}/>{error}</div>}
     <div className="pathao-live-grid">
       {groups.map(g => { const Icon = g.icon; return <button type="button" key={g.key} className={"pathao-status-card pathao-" + g.key} onClick={() => setSelected({ group: g })}>
-        <span className="pathao-card-icon"><Icon size={20}/></span><strong>{loading ? "—" : counts[g.key] ?? 0}</strong><b>{g.title}</b><small>{g.desc}</small><span className="pathao-card-action">পার্সেল দেখুন →</span>
+        <span className="pathao-card-icon"><Icon size={20}/></span><strong>{loading || error ? "—" : counts[g.key] ?? 0}</strong><b>{g.title}</b><small>{g.desc}</small><span className="pathao-card-action">পার্সেল দেখুন →</span>
       </button>; })}
     </div>
     <p className="pathao-live-footnote">সংখ্যা আপনার Management System-এ সংরক্ষিত Pathao পার্সেল থেকে নেওয়া। Pathao API Sync ব্যর্থ হলে Refresh সময় ও ত্রুটি যাচাই করুন।</p>

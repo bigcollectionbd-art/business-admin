@@ -1,4 +1,5 @@
-import { PackageCheck, Truck, Clock3, CirclePause, RotateCcw, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { PackageCheck, Truck, Clock3, CirclePause, RotateCcw, RefreshCw, X, ChevronRight } from "lucide-react";
 import "./PathaoDeliveryDemo.css";
 
 const demoRows = [
@@ -11,37 +12,89 @@ const demoRows = [
   { day: "৬ দিন আগে", booking: 7, pickup: 7, delivered: 6, hold: 0, returned: 1 },
 ];
 
-const demoIssues = [
-  { invoice: "BCB-DEMO-1041", status: "On Hold", type: "hold" },
-  { invoice: "BCB-DEMO-1038", status: "Return", type: "return" },
-  { invoice: "BCB-DEMO-1032", status: "On Hold", type: "hold" },
+const demoParcels = {
+  pending: [
+    { invoice: "BCB-DEMO-1041", consignment: "DEMO-PTH-001", status: "Pending Pickup", updated: "আজ, ১০:১৫ AM" },
+    { invoice: "BCB-DEMO-1042", consignment: "DEMO-PTH-002", status: "Pending Pickup", updated: "আজ, ১১:২০ AM" },
+    { invoice: "BCB-DEMO-1043", consignment: "DEMO-PTH-003", status: "Pending Pickup", updated: "আজ, ১২:০৫ PM" },
+  ],
+  picked: [
+    { invoice: "BCB-DEMO-1044", consignment: "DEMO-PTH-004", status: "Picked Up", updated: "আজ, ১২:৩০ PM" },
+    { invoice: "BCB-DEMO-1045", consignment: "DEMO-PTH-005", status: "Picked Up", updated: "আজ, ১:১০ PM" },
+  ],
+  transit: [
+    { invoice: "BCB-DEMO-1035", consignment: "DEMO-PTH-006", status: "In Transit", updated: "আজ, ৯:৪০ AM" },
+    { invoice: "BCB-DEMO-1036", consignment: "DEMO-PTH-007", status: "In Transit", updated: "আজ, ১০:২৫ AM" },
+    { invoice: "BCB-DEMO-1037", consignment: "DEMO-PTH-008", status: "In Transit", updated: "আজ, ১১:৪৫ AM" },
+  ],
+  hold: [
+    { invoice: "BCB-DEMO-1032", consignment: "DEMO-PTH-009", status: "On Hold", updated: "আজ, ৮:৪০ AM" },
+    { invoice: "BCB-DEMO-1040", consignment: "DEMO-PTH-010", status: "On Hold", updated: "আজ, ১২:২০ PM" },
+  ],
+  returned: [
+    { invoice: "BCB-DEMO-1038", consignment: "DEMO-PTH-011", status: "Return", updated: "গতকাল, ৫:১৫ PM" },
+  ],
+  delivered: [
+    { invoice: "BCB-DEMO-1028", consignment: "DEMO-PTH-012", status: "Delivered", updated: "আজ, ৯:০৫ AM" },
+    { invoice: "BCB-DEMO-1029", consignment: "DEMO-PTH-013", status: "Delivered", updated: "আজ, ১০:৫০ AM" },
+  ],
+};
+
+const statusCards = [
+  { key: "pending", icon: Clock3, label: "Booking Pending Pickup", value: "3", tone: "amber", hint: "Pickup বাকি" },
+  { key: "picked", icon: PackageCheck, label: "Picked Up", value: "4", tone: "navy", hint: "Pathao সংগ্রহ করেছে" },
+  { key: "transit", icon: Truck, label: "In Transit", value: "7", tone: "blue", hint: "ডেলিভারির পথে" },
+  { key: "hold", icon: CirclePause, label: "On Hold", value: "2", tone: "amber", hint: "সমস্যা / Hold" },
+  { key: "returned", icon: RotateCcw, label: "Returned", value: "1", tone: "red", hint: "ফেরত এসেছে" },
+  { key: "delivered", icon: PackageCheck, label: "Delivered", value: "5", tone: "green", hint: "ডেলিভারি সম্পন্ন" },
 ];
 
-function Stat({ icon: Icon, label, value, tone }) {
-  return <div className={`pathao-demo-stat ${tone || ""}`}>
-    <span className="pathao-demo-stat-icon"><Icon size={19} /></span>
-    <div><strong>{value}</strong><span>{label}</span></div>
-  </div>;
+function Stat({ item, onClick }) {
+  const Icon = item.icon;
+  return <button type="button" className={`pathao-demo-stat ${item.tone}`} onClick={onClick}>
+    <span className="pathao-demo-stat-icon"><Icon size={20} /></span>
+    <span className="pathao-demo-stat-copy"><strong>{item.value}</strong><span>{item.label}</span><small>{item.hint}</small></span>
+    <ChevronRight className="pathao-demo-stat-arrow" size={17} />
+  </button>;
 }
 
 export default function PathaoDeliveryDemo({ mode = "dashboard" }) {
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
   if (mode === "dashboard") {
-    return <section className="pathao-demo-panel">
+    return <section className="pathao-demo-panel pathao-demo-dashboard">
       <div className="pathao-demo-heading">
-        <div><h2>Pathao Delivery — Live Status</h2><p>ড্যাশবোর্ডে শুধু বর্তমান পার্সেল স্ট্যাটাস</p></div>
+        <div><div className="pathao-demo-eyebrow">DELIVERY CONTROL CENTER</div><h2>Pathao Delivery Overview</h2><p>আপনার সব পার্সেলের বর্তমান ডেলিভারি অবস্থা এক নজরে</p></div>
         <span className="pathao-demo-tag"><RefreshCw size={13}/> Demo Preview</span>
       </div>
       <div className="pathao-demo-stats">
-        <Stat icon={Clock3} label="Booking Pending Pickup" value="3" tone="amber" />
-        <Stat icon={PackageCheck} label="Picked Up" value="4" />
-        <Stat icon={Truck} label="In Transit" value="7" tone="blue" />
-        <Stat icon={CirclePause} label="On Hold" value="2" tone="amber" />
-        <Stat icon={RotateCcw} label="Returned" value="1" tone="red" />
-        <Stat icon={PackageCheck} label="Delivered" value="5" tone="green" />
+        {statusCards.map(item => <Stat key={item.key} item={item} onClick={() => setSelectedStatus(item.key)} />)}
       </div>
-      <p className="pathao-demo-note">এগুলো নমুনা সংখ্যা—Pathao থেকে Live ডেটা নয়।</p>
+      <div className="pathao-demo-footer"><span><span className="pathao-demo-live-dot" /> Status overview</span><span>বিস্তারিত পার্সেল দেখতে যেকোনো কার্ডে ক্লিক করুন</span></div>
+      <p className="pathao-demo-note">Demo Preview — সংখ্যা ও পার্সেল নমুনা; এখনো Pathao Live ডেটা নয়।</p>
+      {selectedStatus && <div className="pathao-demo-modal-backdrop" onClick={() => setSelectedStatus(null)}>
+        <div className="pathao-demo-modal" role="dialog" aria-modal="true" aria-label="Parcel details" onClick={event => event.stopPropagation()}>
+          <div className="pathao-demo-modal-head">
+            <div><span>PATHAO PARCEL DETAILS</span><h3>{statusCards.find(item => item.key === selectedStatus)?.label}</h3><p>{demoParcels[selectedStatus].length}টি নমুনা পার্সেল</p></div>
+            <button type="button" className="pathao-demo-close" onClick={() => setSelectedStatus(null)} aria-label="Close"><X size={19}/></button>
+          </div>
+          <div className="pathao-demo-parcel-list">
+            {demoParcels[selectedStatus].map(parcel => <div className="pathao-demo-parcel" key={parcel.invoice}>
+              <div className="pathao-demo-parcel-top"><strong>{parcel.invoice}</strong><span className={`pathao-demo-status-pill ${selectedStatus}`}>{parcel.status}</span></div>
+              <div className="pathao-demo-parcel-meta"><span>Consignment: <b>{parcel.consignment}</b></span><span>Updated: {parcel.updated}</span></div>
+            </div>)}
+          </div>
+          <p className="pathao-demo-modal-note">এগুলো কেবল Demo তথ্য। Live সংস্করণে এখানে আপনার আসল Invoice ও Consignment ID দেখানো হবে।</p>
+        </div>
+      </div>}
     </section>;
   }
+
+  const demoIssues = [
+    { invoice: "BCB-DEMO-1041", status: "On Hold", type: "hold" },
+    { invoice: "BCB-DEMO-1038", status: "Return", type: "return" },
+    { invoice: "BCB-DEMO-1032", status: "On Hold", type: "hold" },
+  ];
 
   return <section className="pathao-demo-panel pathao-demo-report">
     <div className="pathao-demo-heading">

@@ -18,6 +18,7 @@ export default function PathaoActivityReport() {
       .from("pathao_status_history")
       .select("id,invoice_no,consignment_id,order_status,order_status_slug,event_at,event_time_source")
       .gte("event_at", from.toISOString())
+      .neq("event_time_source", "initial_snapshot")
       .order("event_at", { ascending: false })
       .limit(500);
     if (queryError) {

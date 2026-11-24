@@ -2,3 +2,38 @@
 .pathao-history-timeline{margin-top:7px;padding-top:9px;border-top:1px solid #edf0f4;display:grid;gap:7px}.pathao-history-timeline>b{color:#17324d;font-size:12px}.pathao-history-timeline>div{display:flex;justify-content:space-between;gap:10px;align-items:center}.pathao-history-timeline>div span{color:#52657b;font-weight:700}.pathao-history-timeline small{color:#8995a3;font-size:10px}
 
 .pathao-live-meta span:first-child{color:#788597;font-weight:500}.pathao-customer-info{display:grid;gap:3px;margin:3px 0 5px;padding:9px 10px;border-radius:9px;background:#fff7ef;border:1px solid #f5e2d0}.pathao-customer-info b{color:#17324d;font-size:13px}.pathao-customer-info span{color:#b65d18;font-weight:700;font-size:12px}
+/* Mobile-only layout: Android and iPhone */
+@media (max-width: 700px) {
+  .pathao-live-panel { padding: 13px; margin-bottom: 18px; overflow: hidden; }
+  .pathao-live-heading { align-items: center; min-width: 0; }
+  .pathao-eyebrow { font-size: 9px; letter-spacing: 1.1px; }
+  .pathao-refresh { flex: 0 0 auto; min-height: 40px; padding: 8px 11px; }
+  .pathao-live-meta { margin: 10px 0 12px; line-height: 1.5; overflow-wrap: anywhere; }
+  .pathao-live-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .pathao-status-card { width: 100%; min-width: 0; min-height: 150px; padding: 11px 10px; border-radius: 13px; }
+  .pathao-status-card b { line-height: 1.35; overflow-wrap: anywhere; }
+  .pathao-status-card small { font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+  .pathao-card-action { font-size: 10px; }
+  .pathao-live-footnote { line-height: 1.55; font-size: 10px; }
+  .pathao-modal-backdrop { align-items: flex-end; justify-content: center; padding: 0; padding-bottom: env(safe-area-inset-bottom); }
+  .pathao-modal { width: 100%; max-width: none; max-height: 88vh; max-height: 88dvh; border-radius: 18px 18px 0 0; padding: 16px 13px calc(16px + env(safe-area-inset-bottom)); }
+  .pathao-modal-head { position: sticky; top: -16px; z-index: 2; margin: -16px -13px 12px; padding: 14px 13px 10px; background: #fff; border-bottom: 1px solid #edf0f4; }
+  .pathao-modal-head h3 { font-size: 17px; }
+  .pathao-parcel-list { gap: 9px; }
+  .pathao-parcel-row { min-width: 0; padding: 11px; gap: 7px; font-size: 12px; overflow-wrap: anywhere; }
+  .pathao-parcel-title { flex-direction: column; align-items: flex-start; gap: 4px; line-height: 1.4; }
+  .pathao-parcel-title span { overflow-wrap: anywhere; }
+  .pathao-customer-info { min-width: 0; padding: 9px; }
+  .pathao-customer-info b, .pathao-customer-info span { overflow-wrap: anywhere; word-break: break-word; }
+  .pathao-history-timeline > div { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .pathao-history-timeline small { overflow-wrap: anywhere; line-height: 1.45; }
+}
+@media (max-width: 380px) {
+  .pathao-live-panel { padding: 10px; }
+  .pathao-live-grid { gap: 7px; }
+  .pathao-status-card { min-height: 156px; padding: 9px; }
+  .pathao-status-card strong { font-size: 22px; }
+  .pathao-status-card b { font-size: 11px; }
+  .pathao-status-card small { font-size: 9px; }
+  .pathao-refresh { gap: 5px; padding: 7px 8px; font-size: 10px; }
+}

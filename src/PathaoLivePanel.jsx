@@ -33,6 +33,8 @@ function fmt(value) {
 export default function PathaoLivePanel() {
   const [parcels, setParcels] = useState([]);
   const [history, setHistory] = useState([]);
+  const [saleItems, setSaleItems] = useState([]);
+  const [activeParcel, setActiveParcel] = useState(null);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -87,18 +89,28 @@ export default function PathaoLivePanel() {
         fetchEveryPage("pathao_status_history", "id,parcel_id,order_status,order_status_slug,event_at,event_time_source", "event_at"),
       ]);
 
+      const saleIds = [...new Set(allParcels.map(p => p.sale_id).filter(Boolean))];
+      let items = [];
+      if (saleIds.length) {
+        const { data: itemData, error: itemError } = await supabase.from("sale_items").select("id,sale_id,product_name,quantity,unit_price,total").in("sale_id", saleIds);
+        if (itemError) throw itemError;
+        items = itemData || [];
+      }
+
       const activeOrRecent = allParcels.filter((p) => {
         const booked = p.booked_at || p.created_at;
         return !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
       setHistory(allHistory);
+      setSaleItems(items);
       setLastSync(new Date());
     } catch (loadError) {
       console.error("Pathao dashboard load error:", loadError);
       setError("Pathao তথ্য লোড করা যায়নি। সংযোগ বা অনুমতি যাচাই করুন।");
       setParcels([]);
       setHistory([]);
+      setSaleItems([]);
     } finally {
       setLoading(false);
     }
@@ -115,6 +127,42 @@ export default function PathaoLivePanel() {
 
   const counts = useMemo(() => Object.fromEntries(groups.map(g => [g.key, parcels.filter(p => classify(p) === g.key).length])), [parcels]);
 
+  const closeDetails = () => { setSelected(null); setActiveParcel(null); };
+
+  function renderParcelDetails(p) {
+    const hs = history.filter(h => h.parcel_id === p.id);
+    const items = saleItems.filter(item => item.sale_id === p.sale_id);
+    const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /deliver/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    return <div className="pathao-full-details">
+      <section className="pathao-detail-section">
+        <h4>Customer & Parcel Details</h4>
+        <div className="pathao-detail-grid">
+          <div><small>Customer Name</small><strong>{p.recipient_name || "তথ্য পাওয়া যায়নি"}</strong></div>
+          <div><small>Mobile Number</small><strong>{p.recipient_phone || "তথ্য পাওয়া যায়নি"}</strong></div>
+          <div><small>Consignment ID</small><strong>{p.consignment_id || "—"}</strong></div>
+          <div><small>Current Status</small><strong>{p.order_status || p.order_status_slug || p.booking_status || "—"}</strong></div>
+          <div><small>Booking Date</small><strong>{fmt(p.booked_at || p.created_at)}</strong></div>
+          <div><small>Pickup Date</small><strong>{pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</strong></div>
+          {classify(p) === "delivered" && <div><small>Delivery Date</small><strong>{delivered ? fmt(delivered.event_at) : "Pathao থেকে Delivery date পাওয়া যায়নি"}</strong></div>}
+          <div><small>Last Pathao Update</small><strong>{fmt(p.tracking_updated_at)}</strong></div>
+        </div>
+      </section>
+      <section className="pathao-detail-section">
+        <div className="pathao-products-heading"><h4>অর্ডার করা প্রোডাক্ট</h4><b>মোট Quantity: {totalQty || "—"}</b></div>
+        {items.length ? <div className="pathao-product-list">{items.map(item => <article className="pathao-product-item" key={item.id}>
+          <strong>{item.product_name || "Product name পাওয়া যায়নি"}</strong>
+          <div><span>Quantity: <b>{Number(item.quantity || 0).toLocaleString("en-BD")}</b></span><span>Unit Price: ৳{Number(item.unit_price || 0).toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2})}</span><b>৳{Number(item.total || 0).toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2})}</b></div>
+        </article>)}</div> : <p className="pathao-no-products">এই Invoice-এর প্রোডাক্টের তথ্য পাওয়া যায়নি।</p>}
+      </section>
+      <section className="pathao-detail-section pathao-history-timeline">
+        <h4>Status History</h4>
+        {hs.length ? hs.map((h,i) => <div key={h.id || i}><span>{h.order_status || h.order_status_slug || "Status"}</span><small>{h.event_time_source === "initial_snapshot" ? "তারিখ পাওয়া যায়নি" : fmt(h.event_at)} · {h.event_time_source === "pathao_reported" ? "Pathao reported" : h.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</small></div>) : <small>কোনো Status History পাওয়া যায়নি।</small>}
+      </section>
+    </div>;
+  }
+
   return <section className="pathao-live-panel">
     <div className="pathao-live-heading">
       <div><span className="pathao-eyebrow">PATHAO DELIVERY CENTER</span></div>
@@ -123,22 +171,25 @@ export default function PathaoLivePanel() {
     <div className="pathao-live-meta"><span>সর্বশেষ ডেটা লোড: {lastSync ? fmt(lastSync) : "—"}</span></div>
     {error && <div className="pathao-error"><AlertCircle size={17}/>{error}</div>}
     <div className="pathao-live-grid">
-      {groups.map(g => { const Icon = g.icon; return <button type="button" key={g.key} className={"pathao-status-card pathao-" + g.key} onClick={() => setSelected({ group: g })}>
+      {groups.map(g => { const Icon = g.icon; return <button type="button" key={g.key} className={"pathao-status-card pathao-" + g.key} onClick={() => { setSelected({ group: g }); setActiveParcel(null); }}>
         <span className="pathao-card-icon"><Icon size={20}/></span><strong>{loading || error ? "—" : counts[g.key] ?? 0}</strong><b>{g.title}</b><small>{g.desc}</small><span className="pathao-card-action">পার্সেল দেখুন →</span>
       </button>; })}
     </div>
-    <p className="pathao-live-footnote">সংখ্যা আপনার Management System-এ সংরক্ষিত Pathao পার্সেল থেকে নেওয়া। Pathao API Sync ব্যর্থ হলে Refresh সময় ও ত্রুটি যাচাই করুন।</p>
-    {selected && <div className="pathao-modal-backdrop" onClick={() => setSelected(null)}>
+    <p className="pathao-live-footnote">সংখ্যা আপনার Management System-এ সংরক্ষিত Pathao পার্সেল থেকে নেওয়া।</p>
+    {selected && <div className="pathao-modal-backdrop" onClick={closeDetails}>
       <div className="pathao-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
-        <div className="pathao-modal-head"><div><span className="pathao-eyebrow">PARCEL DETAILS</span><h3>{selected.group.title}</h3></div><button type="button" onClick={() => setSelected(null)} aria-label="বন্ধ করুন"><X size={20}/></button></div>
-        <div className="pathao-parcel-list">
-          {parcels.filter(p => classify(p) === selected.group.key).length ? parcels.filter(p => classify(p) === selected.group.key).map(p => {
-            const hs = history.filter(h => h.parcel_id === p.id);
-            const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /deliver/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
-            const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
-            return <article className="pathao-parcel-row" key={p.id}><div className="pathao-parcel-title"><b>{p.invoice_no || "Invoice unavailable"}</b><span>{p.order_status || p.order_status_slug || p.booking_status || "Status unavailable"}</span></div><div className="pathao-customer-info"><b>Customer: {p.recipient_name || "নাম পাওয়া যায়নি"}</b><span>Mobile: {p.recipient_phone || "নম্বর পাওয়া যায়নি"}</span></div><div>Consignment: {p.consignment_id || "—"}</div><div>Booking date: {fmt(p.booked_at || p.created_at)}</div><div>Pickup date: {pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</div>{classify(p) === "delivered" && <div>Delivery status date (Pathao update): {delivered ? fmt(delivered.event_at) : "Pathao থেকে Delivery date পাওয়া যায়নি"}</div>}{(classify(p) === "hold" || classify(p) === "returned") && <div>Latest issue / return update: {hs.find(h => h.event_time_source !== "initial_snapshot") ? fmt(hs.find(h => h.event_time_source !== "initial_snapshot").event_at) : "তারিখ পাওয়া যায়নি"}</div>}<div>Last Pathao update: {fmt(p.tracking_updated_at)}</div><div className="pathao-history-timeline"><b>Status History</b>{hs.length ? hs.map((h, i) => <div key={h.id || i}><span>{h.order_status || h.order_status_slug || "Status"}</span><small>{h.event_time_source === "initial_snapshot" ? "তারিখ পাওয়া যায়নি" : fmt(h.event_at)} · {h.event_time_source === "pathao_reported" ? "Pathao reported" : h.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</small></div>) : <small>পুরোনো Status history সংরক্ষিত ছিল না; নতুন update থেকে history তৈরি হবে।</small>}</div></article>;
-          }) : <div className="pathao-empty">এই Status-এ কোনো পার্সেল পাওয়া যায়নি।</div>}
+        <div className="pathao-modal-head">
+          <div><span className="pathao-eyebrow">{activeParcel ? "PARCEL DETAILS" : "PARCEL LIST"}</span><h3>{activeParcel ? activeParcel.invoice_no : selected.group.title}</h3></div>
+          <div className="pathao-modal-actions">
+            {activeParcel && <button type="button" className="pathao-back-button" onClick={() => setActiveParcel(null)}>← Back</button>}
+            <button type="button" onClick={closeDetails} aria-label="বন্ধ করুন"><X size={20}/></button>
+          </div>
         </div>
+        {!activeParcel ? <div className="pathao-parcel-list">
+          {parcels.filter(p => classify(p) === selected.group.key).length ? parcels.filter(p => classify(p) === selected.group.key).map(p => <button type="button" className="pathao-invoice-row" key={p.id} onClick={() => setActiveParcel(p)}>
+            <strong>{p.invoice_no || "Invoice unavailable"}</strong><span>সম্পূর্ণ ডিটেইলস দেখুন →</span>
+          </button>) : <div className="pathao-empty">এই Status-এ কোনো পার্সেল পাওয়া যায়নি।</div>}
+        </div> : renderParcelDetails(activeParcel)}
       </div>
     </div>}
   </section>;

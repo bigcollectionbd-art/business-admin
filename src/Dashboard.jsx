@@ -25,6 +25,7 @@ import {
 
 import { supabase } from "./supabase";
 import "./DashboardBrandTheme.css";
+import PathaoDeliveryDemo from "./PathaoDeliveryDemo";
 
 function Dashboard() {
   const [todaySales, setTodaySales] = useState([]);
@@ -295,6 +296,8 @@ function Dashboard() {
         <div className="dashboard-mobile-brand-name">Big Collection BD</div>
         <p>“স্বপ্ন শুধু দেখার জন্য নয়, বাস্তবায়নের জন্য পরিশ্রম করতে হয়।”</p>
       </div>
+
+      <PathaoDeliveryDemo mode="dashboard" />
 
       <div className="stats-grid">
         <div className="stat-card modern-stat">

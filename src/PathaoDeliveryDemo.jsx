@@ -41,12 +41,12 @@ const demoParcels = {
 };
 
 const statusCards = [
-  { key: "pending", icon: Clock3, label: "Booking Pending Pickup", value: "3", tone: "amber", hint: "Pickup বাকি" },
-  { key: "picked", icon: PackageCheck, label: "Picked Up", value: "4", tone: "navy", hint: "Pathao সংগ্রহ করেছে" },
-  { key: "transit", icon: Truck, label: "In Transit", value: "7", tone: "blue", hint: "ডেলিভারির পথে" },
-  { key: "hold", icon: CirclePause, label: "On Hold", value: "2", tone: "amber", hint: "সমস্যা / Hold" },
-  { key: "returned", icon: RotateCcw, label: "Returned", value: "1", tone: "red", hint: "ফেরত এসেছে" },
-  { key: "delivered", icon: PackageCheck, label: "Delivered", value: "5", tone: "green", hint: "ডেলিভারি সম্পন্ন" },
+  { key: "pending", icon: Clock3, label: "Pickup বাকি", value: "3", tone: "amber", hint: "বুকিং হয়েছে, এখনো সংগ্রহ হয়নি" },
+  { key: "picked", icon: PackageCheck, label: "Pickup সম্পন্ন", value: "4", tone: "navy", hint: "Pathao পার্সেল সংগ্রহ করেছে" },
+  { key: "transit", icon: Truck, label: "ডেলিভারির পথে", value: "7", tone: "blue", hint: "পার্সেল গন্তব্যের পথে আছে" },
+  { key: "hold", icon: CirclePause, label: "Hold-এ আছে", value: "2", tone: "amber", hint: "ডেলিভারি সাময়িকভাবে আটকে আছে" },
+  { key: "returned", icon: RotateCcw, label: "ফেরত এসেছে", value: "1", tone: "red", hint: "পার্সেল প্রেরকের কাছে ফেরত" },
+  { key: "delivered", icon: PackageCheck, label: "ডেলিভারি সম্পন্ন", value: "5", tone: "green", hint: "কাস্টমার পার্সেল পেয়েছেন" },
 ];
 
 function Stat({ item, onClick }) {
@@ -64,14 +64,14 @@ export default function PathaoDeliveryDemo({ mode = "dashboard" }) {
   if (mode === "dashboard") {
     return <section className="pathao-demo-panel pathao-demo-dashboard">
       <div className="pathao-demo-heading">
-        <div><div className="pathao-demo-eyebrow">DELIVERY CONTROL CENTER</div><h2>Pathao Delivery Overview</h2><p>আপনার সব পার্সেলের বর্তমান ডেলিভারি অবস্থা এক নজরে</p></div>
+        <div><div className="pathao-demo-eyebrow">PATHAO DELIVERY CENTER</div><h2>Pathao পার্সেল আপডেট</h2><p>আপনার সব পার্সেলের বর্তমান অবস্থা এক জায়গায়</p></div>
         <span className="pathao-demo-tag"><RefreshCw size={13}/> Demo Preview</span>
       </div>
       <div className="pathao-demo-stats">
         {statusCards.map(item => <Stat key={item.key} item={item} onClick={() => setSelectedStatus(item.key)} />)}
       </div>
-      <div className="pathao-demo-footer"><span><span className="pathao-demo-live-dot" /> Status overview</span><span>বিস্তারিত পার্সেল দেখতে যেকোনো কার্ডে ক্লিক করুন</span></div>
-      <p className="pathao-demo-note">Demo Preview — সংখ্যা ও পার্সেল নমুনা; এখনো Pathao Live ডেটা নয়।</p>
+      <div className="pathao-demo-footer"><span><span className="pathao-demo-live-dot" /> পার্সেলের বর্তমান অবস্থা</span><span>বিস্তারিত দেখতে যেকোনো কার্ডে ক্লিক করুন</span></div>
+      <p className="pathao-demo-note">এটি নমুনা ডেটার Demo; এখনো Pathao-এর Live তথ্য নয়।</p>
       {selectedStatus && <div className="pathao-demo-modal-backdrop" onClick={() => setSelectedStatus(null)}>
         <div className="pathao-demo-modal" role="dialog" aria-modal="true" aria-label="Parcel details" onClick={event => event.stopPropagation()}>
           <div className="pathao-demo-modal-head">
@@ -84,7 +84,7 @@ export default function PathaoDeliveryDemo({ mode = "dashboard" }) {
               <div className="pathao-demo-parcel-meta"><span>Consignment: <b>{parcel.consignment}</b></span><span>Updated: {parcel.updated}</span></div>
             </div>)}
           </div>
-          <p className="pathao-demo-modal-note">এগুলো কেবল Demo তথ্য। Live সংস্করণে এখানে আপনার আসল Invoice ও Consignment ID দেখানো হবে।</p>
+          <p className="pathao-demo-modal-note">এগুলো নমুনা তথ্য। Live সংস্করণে এখানে আপনার আসল Invoice ও Consignment ID দেখানো হবে।</p>
         </div>
       </div>}
     </section>;
@@ -99,7 +99,7 @@ export default function PathaoDeliveryDemo({ mode = "dashboard" }) {
   return <section className="pathao-demo-panel pathao-demo-report">
     <div className="pathao-demo-heading">
       <div><h2>Pathao — Last 7 Days Report</h2><p>প্রতিদিনের বুকিং, Pickup, Delivered, Hold ও Return</p></div>
-      <span className="pathao-demo-tag">Demo Preview</span>
+      <span className="pathao-demo-tag">ডেমো প্রিভিউ</span>
     </div>
     <div className="pathao-demo-table-wrap">
       <table className="pathao-demo-table">

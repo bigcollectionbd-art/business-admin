@@ -237,8 +237,6 @@ function Reports() {
 
   return (
     <div className="reports-page">
-      <PathaoDeliveryDemo mode="report" />
-
       <div className="reports-toolbar">
         <div>
           <h2>Reports</h2>
@@ -318,6 +316,8 @@ function Reports() {
               </div>
             </div>
           </div>
+
+          <PathaoDeliveryDemo mode="report" />
 
           <div className="reports-grid">
             <div className="report-card sales-chart-card">

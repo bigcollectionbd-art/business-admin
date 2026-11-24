@@ -1,4 +1,5 @@
 ﻿import "./Reports.css";
+import PathaoDeliveryDemo from "./PathaoDeliveryDemo";
 import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
@@ -236,6 +237,8 @@ function Reports() {
 
   return (
     <div className="reports-page">
+      <PathaoDeliveryDemo mode="report" />
+
       <div className="reports-toolbar">
         <div>
           <h2>Reports</h2>

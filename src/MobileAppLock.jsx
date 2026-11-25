@@ -241,12 +241,12 @@ export default function MobileAppLock({ children }) {
         >
           <div style={styles.logo}>B</div>
           <h1 style={styles.title}>Big Collection BD</h1>
-          <p style={styles.subtitle}>BUSINESS MANAGEMENT</p>
+          <p style={styles.subtitle}>SECURE WORKSPACE ACCESS</p>
           <h2 style={styles.heading}>{mode === "setup" ? "Create Your 6-Digit PIN" : "Welcome Back"}</h2>
           <p style={styles.helper}>
             {mode === "setup"
-              ? "Set a personal PIN to protect access to this app on your device."
-              : "Enter your PIN to continue to your workspace."}
+              ? "Create a 6-digit PIN to secure your workspace on this device."
+              : "Enter your 6-digit PIN to unlock your workspace."}
           </p>
           <label style={styles.fieldLabel} htmlFor="bcb-pin">
             {mode === "setup" ? "NEW PIN" : "ENTER PIN"}
@@ -289,7 +289,7 @@ export default function MobileAppLock({ children }) {
           <button style={styles.button} type="submit" disabled={busy || remainingCooldown > 0}>
             {busy ? "Please wait..." : mode === "setup" ? "Save PIN" : "Unlock"}
           </button>
-          <p style={styles.note}>The app locks automatically after 15 minutes of inactivity.</p>
+          <p style={styles.note}>Your app also locks automatically after 15 minutes of inactivity.</p>
         </form>
       </div>
     );
@@ -306,22 +306,25 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   panel: {
-    width: "100%", maxWidth: 380, padding: "32px 26px", borderRadius: 24,
-    background: "#fff", boxShadow: "0 20px 60px rgba(0,0,0,.3)",
-    display: "flex", flexDirection: "column", gap: 12, textAlign: "left",
+    width: "100%", maxWidth: 390, maxHeight: "calc(100dvh - 32px)", overflowY: "auto",
+    padding: "34px 28px 28px", borderRadius: 24, background: "#fff",
+    boxShadow: "0 24px 70px rgba(0,0,0,.32)", display: "flex",
+    flexDirection: "column", gap: 13, textAlign: "left",
   },
   logo: {
-    width: 54, height: 54, margin: "0 auto 4px", display: "grid",
-    placeItems: "center", borderRadius: 16, background: "#2563eb",
-    color: "#fff", fontSize: 28, fontWeight: 800,
+    width: 58, height: 58, margin: "0 auto 5px", display: "grid",
+    placeItems: "center", borderRadius: 18, background: "linear-gradient(145deg, #3478f6, #1746b8)",
+    color: "#fff", fontSize: 29, fontWeight: 800, boxShadow: "0 8px 20px rgba(37,99,235,.25)",
   },
   title: { margin: 0, color: "#172033", fontSize: 21, textAlign: "center", fontWeight: 800 },
   subtitle: { margin: "-6px 0 8px", color: "#718096", fontSize: 11, textAlign: "center", letterSpacing: 1.5, fontWeight: 700 },
-  heading: { margin: "8px 0 0", color: "#172033", fontSize: 21, fontWeight: 800 },\n  helper: { margin: "0 0 8px", color: "#64748b", fontSize: 13, lineHeight: 1.5 },\n  fieldLabel: { marginBottom: -6, color: "#475569", fontSize: 10, fontWeight: 800, letterSpacing: 1.1 },
+  heading: { margin: "10px 0 0", color: "#172033", fontSize: 22, fontWeight: 800, letterSpacing: "-.3px" },
+  helper: { margin: "0 0 8px", color: "#64748b", fontSize: 13, lineHeight: 1.5 },
+  fieldLabel: { marginBottom: -6, color: "#475569", fontSize: 10, fontWeight: 800, letterSpacing: 1.1 },
   input: {
-    width: "100%", padding: "14px 12px", border: "1px solid #cbd5e1",
-    borderRadius: 11, fontSize: 20, textAlign: "center", letterSpacing: 6,
-    outlineColor: "#2563eb", boxSizing: "border-box",
+    width: "100%", padding: "15px 12px", border: "1.5px solid #cbd5e1",
+    borderRadius: 12, fontSize: 22, textAlign: "center", letterSpacing: 8,
+    outlineColor: "#2563eb", boxSizing: "border-box", background: "#f8fafc", color: "#172033",
   },
   button: {
     width: "100%", padding: 14, border: 0, borderRadius: 11,

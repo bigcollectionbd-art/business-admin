@@ -22,6 +22,7 @@ import Products from "./Products";
 import Customers from "./Customers";
 import SettingsPage from "./Settings";
 import Reports from "./Reports";
+import Expenses from "./Expenses";
 import "./App.css";
 import "./SiteBrandTheme.css";
 import "./Invoice.css";
@@ -175,6 +176,8 @@ function App() {
       ? "Products"
       : page === "customers"
       ? "Customers"
+      : page === "expenses"
+      ? "Expenses"
       : "";
 
   const pageSubtitle =
@@ -188,6 +191,8 @@ function App() {
       ? "Manage product stock and inventory"
       : page === "customers"
       ? "Manage your customers"
+      : page === "expenses"
+      ? "Record and review business expenses"
       : "";
 
   return (
@@ -268,10 +273,16 @@ function App() {
             Customers
           </button>
 
-          <button className="nav-item" type="button">
-            <Wallet size={20} />
-            Expenses
-          </button>
+          {["owner", "admin"].includes(userRole) && (
+            <button
+              className={page === "expenses" ? "nav-item active" : "nav-item"}
+              onClick={() => handlePageChange("expenses")}
+              type="button"
+            >
+              <Wallet size={20} />
+              Expenses
+            </button>
+          )}
 
           <button
             className={
@@ -362,6 +373,7 @@ function App() {
         {page === "invoice" && <Invoice />}
         {page === "products" && <Products />}
         {page === "customers" && <Customers />}
+        {page === "expenses" && ["owner", "admin"].includes(userRole) && <Expenses />}
         {page === "settings" && userRole === "owner" && <SettingsPage />}
         {page === "reports" && <Reports />}
       </main>

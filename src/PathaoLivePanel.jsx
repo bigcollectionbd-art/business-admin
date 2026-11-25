@@ -33,6 +33,11 @@ function fmt(value) {
   return new Date(value).toLocaleString("en-GB", { timeZone: "Asia/Dhaka", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+function invoiceSerial(value) {
+  const match = String(value || "").match(/(\d+)$/);
+  return match ? Number(match[1]) : null;
+}
+
 export default function PathaoLivePanel() {
   const [parcels, setParcels] = useState([]);
   const [history, setHistory] = useState([]);
@@ -130,6 +135,13 @@ export default function PathaoLivePanel() {
 
   const counts = useMemo(() => Object.fromEntries(groups.map(g => [g.key, parcels.filter(p => classify(p) === g.key).length])), [parcels]);
 
+  const sortedParcels = useMemo(() => [...parcels].sort((a, b) => {
+    const aSerial = invoiceSerial(a.invoice_no);
+    const bSerial = invoiceSerial(b.invoice_no);
+    if (aSerial !== null && bSerial !== null && aSerial !== bSerial) return bSerial - aSerial;
+    return new Date(b.booked_at || b.created_at || 0) - new Date(a.booked_at || a.created_at || 0);
+  }), [parcels]);
+
   const closeDetails = () => { setSelected(null); setActiveParcel(null); };
 
   function renderParcelDetails(p) {
@@ -189,7 +201,7 @@ export default function PathaoLivePanel() {
           </div>
         </div>
         {!activeParcel ? <div className="pathao-parcel-list">
-          {parcels.filter(p => classify(p) === selected.group.key).length ? parcels.filter(p => classify(p) === selected.group.key).map(p => <button type="button" className="pathao-invoice-row" key={p.id} onClick={() => setActiveParcel(p)}>
+          {sortedParcels.filter(p => classify(p) === selected.group.key).length ? sortedParcels.filter(p => classify(p) === selected.group.key).map(p => <button type="button" className="pathao-invoice-row" key={p.id} onClick={() => setActiveParcel(p)}>
             <strong>{p.invoice_no || "Invoice unavailable"}</strong><span>সম্পূর্ণ ডিটেইলস দেখুন →</span>
           </button>) : <div className="pathao-empty">এই Status-এ কোনো পার্সেল পাওয়া যায়নি।</div>}
         </div> : renderParcelDetails(activeParcel)}

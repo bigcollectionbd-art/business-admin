@@ -435,7 +435,7 @@ const styles = {
     outlineColor: "#3478e5", boxSizing: "border-box", background: "#f7faff", color: "#172b47",
     transition: "border-color .2s, box-shadow .2s",
   },
-  pinDots: { display: "flex", justifyContent: "center", gap: 10, margin: "-2px 0 2px },
+  pinDots: { display: "flex", justifyContent: "center", gap: 10, margin: "-2px 0 2px" },
   pinDot: { width: 8, height: 8, borderRadius: "50%", background: "#d7e0ec", transition: "background .15s, transform .15s" },
   pinDotFilled: { background: "#3478e5", transform: "scale(1.18)" },
   button: {

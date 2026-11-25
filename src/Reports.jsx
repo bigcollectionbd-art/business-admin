@@ -9,7 +9,6 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { supabase } from "./supabase";
-import PathaoActivityReport from "./PathaoActivityReport";
 
 function Reports() {
   const [sales, setSales] = useState([]);
@@ -316,8 +315,6 @@ function Reports() {
               </div>
             </div>
           </div>
-
-          <PathaoActivityReport />
 
           <div className="reports-grid">
             <div className="report-card sales-chart-card">

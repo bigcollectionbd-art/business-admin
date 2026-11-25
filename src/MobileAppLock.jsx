@@ -284,7 +284,9 @@ export default function MobileAppLock({ children }) {
           <p style={styles.helper}>
             {mode === "setup"
               ? "Create a 6-digit PIN to secure your workspace on this device."
-              : mode === "forgot"\n              ? "Verify your account with your login password to create a new PIN."\n              : "Enter your 6-digit PIN to unlock your workspace."}
+              : mode === "forgot"
+              ? "Verify your account with your login password to create a new PIN."
+              : "Enter your 6-digit PIN to unlock your workspace."}
           </p>
           {mode === "forgot" ? (
             <>
@@ -316,7 +318,7 @@ export default function MobileAppLock({ children }) {
                 maxLength={6}
                 autoComplete="off"
                 value={pin}
-                onChange={(event) => { setPin(event.target.value.replace(/\\D/g, "").slice(0, 6)); setMessage(""); }}
+                onChange={(event) => { setPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
                 placeholder="••••••"
                 aria-label={mode === "setup" ? "Create 6-digit PIN" : "Enter 6-digit PIN"}
                 disabled={busy || remainingCooldown > 0}

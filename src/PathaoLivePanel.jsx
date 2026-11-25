@@ -11,7 +11,7 @@ const groups = [
   { key: "hold", title: "Hold-এ আছে", desc: "ডেলিভারি সাময়িকভাবে আটকে আছে", icon: PauseCircle },
   { key: "assigned", title: "ডেলিভারির জন্য অ্যাসাইন", desc: "রাইডার/ডেলিভারি হাবে আছে—এখনো Delivered নয়", icon: Truck },
   { key: "delivered", title: "ডেলিভারি সম্পন্ন", desc: "কাস্টমারের কাছে পৌঁছেছে", icon: CheckCircle2 },
-  { key: "returned", title: "ফেরত এসেছে", desc: "ফেরত প্রক্রিয়ায় বা ফেরত সম্পন্ন", icon: RotateCcw },
+  { key: "returned", title: "ফেরত / Return", desc: "Merchant-এর কাছে ফেরত পৌঁছানো পর্যন্ত আপডেট", icon: RotateCcw },
 ];
 
 function classify(parcel) {
@@ -26,6 +26,36 @@ function classify(parcel) {
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
   if (/pickup/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   return "pending";
+}
+
+function isReturnedToMerchant(parcel, history = []) {
+  const statuses = [
+    parcel.order_status,
+    parcel.order_status_slug,
+    ...history.filter((item) => item.parcel_id === parcel.id).flatMap((item) => [item.order_status, item.order_status_slug]),
+  ].filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  return /returned to merchant/.test(statuses) || /(^|\\s)returned($|\\s)/.test(statuses);
+}
+
+function returnProgress(parcel, history = []) {
+  const statuses = [
+    parcel.order_status,
+    parcel.order_status_slug,
+    ...history.filter((item) => item.parcel_id === parcel.id).flatMap((item) => [item.order_status, item.order_status_slug]),
+  ].filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  if (/returned to merchant/.test(statuses) || /(^|\\s)returned($|\\s)/.test(statuses)) {
+    return { title: "Returned to Merchant", note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
+  }
+  if (/return in transit/.test(statuses)) {
+    return { title: "Returning to Merchant", note: "পার্সেল Merchant-এর কাছে ফেরত আসার পথে" };
+  }
+  if (/return id created/.test(statuses)) {
+    return { title: "Return Initiated", note: "ফেরত পাঠানোর প্রক্রিয়া শুরু হয়েছে" };
+  }
+  return {
+    title: parcel.order_status || parcel.order_status_slug || "Return update pending",
+    note: "Pathao-এর পরবর্তী Return update এলে এখানে দেখানো হবে",
+  };
 }
 
 function fmt(value) {
@@ -107,7 +137,8 @@ export default function PathaoLivePanel() {
 
       const activeOrRecent = allParcels.filter((p) => {
         const booked = p.booked_at || p.created_at;
-        return !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
+        const awaitingMerchantReturn = classify(p) === "returned" && !isReturnedToMerchant(p, allHistory);
+        return awaitingMerchantReturn || !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
       setHistory(allHistory);
@@ -150,7 +181,16 @@ export default function PathaoLivePanel() {
     const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
     const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    const isReturnParcel = classify(p) === "returned";
+    const returnInfo = isReturnParcel ? returnProgress(p, history) : null;
     return <div className="pathao-full-details">
+      {isReturnParcel && <section className="pathao-detail-section">
+        <h4>Return Tracking</h4>
+        <div className="pathao-detail-grid">
+          <div><small>Return Status</small><strong>{returnInfo.title}</strong></div>
+          <div><small>Return Progress</small><strong>{returnInfo.note}</strong></div>
+        </div>
+      </section>}
       <section className="pathao-detail-section">
         <h4>Customer & Parcel Details</h4>
         <div className="pathao-detail-grid">

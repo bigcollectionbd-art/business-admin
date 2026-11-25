@@ -22,8 +22,9 @@ function classify(parcel) {
   if (/\b(delivered|delivery completed|successfully delivered)\b/.test(raw)) return "delivered";
   if (/ready for delivery|assigned for delivery|out for delivery|delivery assigned/.test(raw)) return "assigned";
   if (/hold|exception|damage|lost/.test(raw)) return "hold";
+  if (/\b(picked|picked up|pickup complete|pickup completed|pickup done|collected)\b|received at pickup hub/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
-  if (/pickup|picked up|collected/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
+  if (/pickup/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   return "pending";
 }
 

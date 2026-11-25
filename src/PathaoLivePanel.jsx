@@ -9,9 +9,9 @@ const groups = [
   { key: "picked", title: "Pickup সম্পন্ন", desc: "Pathao পার্সেল সংগ্রহ করেছে", icon: PackageCheck },
   { key: "transit", title: "ডেলিভারির পথে", desc: "পার্সেল গন্তব্যের পথে", icon: Truck },
   { key: "hold", title: "Hold-এ আছে", desc: "ডেলিভারি সাময়িকভাবে আটকে আছে", icon: PauseCircle },
-  { key: "returned", title: "ফেরত এসেছে", desc: "ফেরত প্রক্রিয়ায় বা ফেরত সম্পন্ন", icon: RotateCcw },
   { key: "assigned", title: "ডেলিভারির জন্য অ্যাসাইন", desc: "রাইডার/ডেলিভারি হাবে আছে—এখনো Delivered নয়", icon: Truck },
   { key: "delivered", title: "ডেলিভারি সম্পন্ন", desc: "কাস্টমারের কাছে পৌঁছেছে", icon: CheckCircle2 },
+  { key: "returned", title: "ফেরত এসেছে", desc: "ফেরত প্রক্রিয়ায় বা ফেরত সম্পন্ন", icon: RotateCcw },
 ];
 
 function classify(parcel) {

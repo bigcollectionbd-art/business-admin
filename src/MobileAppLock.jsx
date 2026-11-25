@@ -217,7 +217,7 @@ export default function MobileAppLock({ children }) {
         setCooldownUntil(blockedUntil);
         setMessage(blockedUntil
           ? "5 incorrect attempts. Try again in 5 minutes."
-          : `ভুল PIN। আরও ${MAX_ATTEMPTS - failedAttempts} বার চেষ্টা করতে পারবেন।`);
+          : `Incorrect PIN. ${MAX_ATTEMPTS - failedAttempts} attempts remaining.`);
       }
     } catch {
       setMessage("Could not verify the PIN. Please try again.");
@@ -289,7 +289,7 @@ export default function MobileAppLock({ children }) {
           <button style={styles.button} type="submit" disabled={busy || remainingCooldown > 0}>
             {busy ? "Please wait..." : mode === "setup" ? "Save PIN" : "Unlock"}
           </button>
-          <p style={styles.note}>১৫ মিনিট নিষ্ক্রিয় থাকলে অ্যাপ আবার Lock হবে।</p>
+          <p style={styles.note}>The app locks automatically after 15 minutes of inactivity.</p>
         </form>
       </div>
     );

@@ -73,7 +73,7 @@ export default function MobileAppLock({ children }) {
   const [config, setConfig] = useState(readConfig);
   const [locked, setLocked] = useState(() => {
     const saved = readConfig();
-    return Boolean(saved && Date.now() - saved.lastActive >= IDLE_MS);
+    return Boolean(saved);
   });
   const [mode, setMode] = useState(() => (readConfig() ? "unlock" : "setup"));
   const [pin, setPin] = useState("");
@@ -155,11 +155,11 @@ export default function MobileAppLock({ children }) {
 
   const saveNewPin = async () => {
     if (!/^\d{6}$/.test(pin)) {
-      setMessage("৬ সংখ্যার PIN দিন।");
+      setMessage("Please enter a 6-digit PIN.");
       return;
     }
     if (pin !== confirmPin) {
-      setMessage("দুইবার দেওয়া PIN মিলছে না।");
+      setMessage("The PINs do not match. Please try again.");
       return;
     }
     setBusy(true);
@@ -176,7 +176,7 @@ export default function MobileAppLock({ children }) {
       setConfirmPin("");
       setMessage("");
     } catch {
-      setMessage("এই ডিভাইসে নিরাপদ PIN সংরক্ষণ করা যাচ্ছে না।");
+      setMessage("Unable to securely save the PIN on this device.");
     } finally {
       setBusy(false);
     }
@@ -184,13 +184,13 @@ export default function MobileAppLock({ children }) {
 
   const verifyPin = async () => {
     if (!/^\d{6}$/.test(pin) || !config) {
-      setMessage("সঠিক ৬ সংখ্যার PIN দিন।");
+      setMessage("Please enter a valid 6-digit PIN.");
       return;
     }
     const blockedUntil = config.blockedUntil || 0;
     if (Date.now() < blockedUntil) {
       setCooldownUntil(blockedUntil);
-      setMessage("অনেকবার ভুল PIN দেওয়া হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।");
+      setMessage("Too many incorrect attempts. Please try again later.");
       return;
     }
     setBusy(true);
@@ -216,11 +216,11 @@ export default function MobileAppLock({ children }) {
         setPin("");
         setCooldownUntil(blockedUntil);
         setMessage(blockedUntil
-          ? "৫ বার ভুল PIN হয়েছে। ৫ মিনিট পরে আবার চেষ্টা করুন।"
+          ? "5 incorrect attempts. Try again in 5 minutes."
           : `ভুল PIN। আরও ${MAX_ATTEMPTS - failedAttempts} বার চেষ্টা করতে পারবেন।`);
       }
     } catch {
-      setMessage("PIN যাচাই করা যায়নি। আবার চেষ্টা করুন।");
+      setMessage("Could not verify the PIN. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -241,9 +241,18 @@ export default function MobileAppLock({ children }) {
         >
           <div style={styles.logo}>B</div>
           <h1 style={styles.title}>Big Collection BD</h1>
-          <p style={styles.subtitle}>Management System App Lock</p>
-          <h2 style={styles.heading}>{mode === "setup" ? "৬ সংখ্যার PIN সেট করুন" : "অ্যাপ আনলক করুন"}</h2>
+          <p style={styles.subtitle}>BUSINESS MANAGEMENT</p>
+          <h2 style={styles.heading}>{mode === "setup" ? "Create Your 6-Digit PIN" : "Welcome Back"}</h2>
+          <p style={styles.helper}>
+            {mode === "setup"
+              ? "Set a personal PIN to protect access to this app on your device."
+              : "Enter your PIN to continue to your workspace."}
+          </p>
+          <label style={styles.fieldLabel} htmlFor="bcb-pin">
+            {mode === "setup" ? "NEW PIN" : "ENTER PIN"}
+          </label>
           <input
+            id="bcb-pin"
             style={styles.input}
             type="password"
             inputMode="numeric"
@@ -252,29 +261,33 @@ export default function MobileAppLock({ children }) {
             autoComplete="off"
             value={pin}
             onChange={(event) => { setPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
-            placeholder="৬ সংখ্যার PIN"
-            aria-label="৬ সংখ্যার PIN"
+            placeholder="••••••"
+            aria-label={mode === "setup" ? "Create 6-digit PIN" : "Enter 6-digit PIN"}
             disabled={busy || remainingCooldown > 0}
             autoFocus
           />
           {mode === "setup" && (
-            <input
-              style={styles.input}
-              type="password"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              autoComplete="off"
-              value={confirmPin}
-              onChange={(event) => { setConfirmPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
-              placeholder="PIN আবার লিখুন"
-              aria-label="PIN নিশ্চিত করুন"
-              disabled={busy}
-            />
+            <>
+              <label style={styles.fieldLabel} htmlFor="bcb-confirm-pin">CONFIRM PIN</label>
+              <input
+                id="bcb-confirm-pin"
+                style={styles.input}
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                autoComplete="off"
+                value={confirmPin}
+                onChange={(event) => { setConfirmPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
+                placeholder="••••••"
+                aria-label="Confirm 6-digit PIN"
+                disabled={busy}
+              />
+            </>
           )}
           {message && <p style={styles.message} role="alert">{message}</p>}
           <button style={styles.button} type="submit" disabled={busy || remainingCooldown > 0}>
-            {busy ? "অপেক্ষা করুন..." : mode === "setup" ? "PIN সংরক্ষণ করুন" : "Unlock"}
+            {busy ? "Please wait..." : mode === "setup" ? "Save PIN" : "Unlock"}
           </button>
           <p style={styles.note}>১৫ মিনিট নিষ্ক্রিয় থাকলে অ্যাপ আবার Lock হবে।</p>
         </form>
@@ -289,22 +302,22 @@ const styles = {
   overlay: {
     position: "fixed", inset: 0, zIndex: 99999, display: "flex",
     alignItems: "center", justifyContent: "center", padding: 24,
-    background: "linear-gradient(145deg, #102b43, #0b1726)",
+    background: "linear-gradient(145deg, #0f2742 0%, #153b60 55%, #0b1726 100%)",
     fontFamily: "Arial, sans-serif",
   },
   panel: {
-    width: "100%", maxWidth: 360, padding: 28, borderRadius: 22,
+    width: "100%", maxWidth: 380, padding: "32px 26px", borderRadius: 24,
     background: "#fff", boxShadow: "0 20px 60px rgba(0,0,0,.3)",
-    display: "flex", flexDirection: "column", gap: 12, textAlign: "center",
+    display: "flex", flexDirection: "column", gap: 12, textAlign: "left",
   },
   logo: {
-    width: 54, height: 54, margin: "0 auto", display: "grid",
+    width: 54, height: 54, margin: "0 auto 4px", display: "grid",
     placeItems: "center", borderRadius: 16, background: "#2563eb",
     color: "#fff", fontSize: 28, fontWeight: 800,
   },
-  title: { margin: 0, color: "#172033", fontSize: 20 },
-  subtitle: { margin: "-6px 0 8px", color: "#718096", fontSize: 12 },
-  heading: { margin: "8px 0", color: "#172033", fontSize: 18 },
+  title: { margin: 0, color: "#172033", fontSize: 21, textAlign: "center", fontWeight: 800 },
+  subtitle: { margin: "-6px 0 8px", color: "#718096", fontSize: 11, textAlign: "center", letterSpacing: 1.5, fontWeight: 700 },
+  heading: { margin: "8px 0 0", color: "#172033", fontSize: 21, fontWeight: 800 },\n  helper: { margin: "0 0 8px", color: "#64748b", fontSize: 13, lineHeight: 1.5 },\n  fieldLabel: { marginBottom: -6, color: "#475569", fontSize: 10, fontWeight: 800, letterSpacing: 1.1 },
   input: {
     width: "100%", padding: "14px 12px", border: "1px solid #cbd5e1",
     borderRadius: 11, fontSize: 20, textAlign: "center", letterSpacing: 6,
@@ -312,9 +325,9 @@ const styles = {
   },
   button: {
     width: "100%", padding: 14, border: 0, borderRadius: 11,
-    background: "#2563eb", color: "#fff", fontSize: 15,
+    background: "linear-gradient(90deg, #2563eb, #1d4ed8)", color: "#fff", fontSize: 15,
     fontWeight: 700, cursor: "pointer",
   },
   message: { margin: 0, color: "#b91c1c", fontSize: 13 },
-  note: { margin: "4px 0 0", color: "#64748b", fontSize: 11 },
+  note: { margin: "8px 0 0", color: "#64748b", fontSize: 11, lineHeight: 1.5, textAlign: "center" },
 };

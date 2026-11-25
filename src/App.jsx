@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -15,6 +15,7 @@ import {
 
 import { supabase } from "./supabase";
 import Login from "./Login";
+import MobileAppLock from "./MobileAppLock";
 import Dashboard from "./Dashboard";
 import Sales from "./Sales";
 import Invoice from "./Invoice";
@@ -196,6 +197,7 @@ function App() {
       : "";
 
   return (
+    <MobileAppLock>
     <div className="admin-app">
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="logo">
@@ -378,6 +380,7 @@ function App() {
         {page === "reports" && <Reports />}
       </main>
     </div>
+    </MobileAppLock>
   );
 }
 

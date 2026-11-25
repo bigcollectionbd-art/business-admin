@@ -77,7 +77,7 @@ export default function PathaoLivePanel() {
           while (true) {
             const { data, error: pageError } = await supabase
               .from("pathao_parcels")
-              .select("id,sale_id,invoice_no,recipient_name,recipient_phone,consignment_id,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
+              .select("id,sale_id,invoice_no,recipient_name,recipient_phone,consignment_id,cod_amount,booking_status,order_status,order_status_slug,booked_at,tracking_updated_at,created_at,updated_at")
               .not("consignment_id", "is", null)
               .order("booked_at", { ascending: false })
               .range(from, from + pageSize - 1);
@@ -145,6 +145,7 @@ export default function PathaoLivePanel() {
           <div><small>Customer Name</small><strong>{p.recipient_name || "তথ্য পাওয়া যায়নি"}</strong></div>
           <div><small>Mobile Number</small><strong>{p.recipient_phone || "তথ্য পাওয়া যায়নি"}</strong></div>
           <div><small>Consignment ID</small><strong>{p.consignment_id || "—"}</strong></div>
+          <div><small>COD Amount</small><strong>{p.cod_amount != null ? `৳${Number(p.cod_amount).toLocaleString("en-BD", { maximumFractionDigits: 2 })}` : "তথ্য পাওয়া যায়নি"}</strong></div>
           <div><small>Current Status</small><strong>{p.order_status || p.order_status_slug || p.booking_status || "—"}</strong></div>
           <div><small>Booking Date</small><strong>{fmt(p.booked_at || p.created_at)}</strong></div>
           <div><small>Pickup Date</small><strong>{pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</strong></div>

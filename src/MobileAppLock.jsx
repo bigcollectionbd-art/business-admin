@@ -389,6 +389,7 @@ export default function MobileAppLock({ children }) {
           <p style={styles.note}>For your protection, the app locks after 15 minutes of inactivity.</p>
         </form>
       </div>
+    );
   }
 
   return children;

@@ -6,7 +6,6 @@ import {
   CalendarDays,
   BarChart3,
   WalletCards,
-  FileText,
   Package,
 } from "lucide-react";
 
@@ -116,7 +115,6 @@ function Dashboard() {
 
   const [todaySales, setTodaySales] = useState([]);
   const [monthlySales, setMonthlySales] = useState([]);
-  const [recentSales, setRecentSales] = useState([]);
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -158,7 +156,6 @@ function Dashboard() {
       const [
         todayResult,
         monthResult,
-        recentResult,
         stockResult,
       ] = await Promise.all([
         supabase
@@ -176,14 +173,6 @@ function Dashboard() {
           .gte("sale_date", startOfMonth.toISOString())
           .lt("sale_date", startOfNextMonth.toISOString())
           .order("sale_date", { ascending: false }),
-
-        supabase
-          .from("sales")
-          .select(
-            "id, invoice_no, sale_date, total, due, paid, payment_method, status, customer_id"
-          )
-          .order("sale_date", { ascending: false })
-          .limit(5),
 
         supabase
           .from("products")
@@ -213,54 +202,6 @@ function Dashboard() {
       } else {
         setLowStockProducts(stockResult.data || []);
       }
-
-      let recentData = recentResult.data || [];
-
-      if (recentResult.error) {
-        console.error("Recent sales error:", recentResult.error);
-        recentData = [];
-      }
-
-      const customerIds = [
-        ...new Set(
-          recentData
-            .map((sale) => sale.customer_id)
-            .filter(Boolean)
-        ),
-      ];
-
-      let customerMap = {};
-
-      if (customerIds.length > 0) {
-        const { data: customers, error: customersError } =
-          await supabase
-            .from("customers")
-            .select("id, name")
-            .in("id", customerIds);
-
-        if (customersError) {
-          console.error(
-            "Customer lookup error:",
-            customersError
-          );
-        } else {
-          customerMap = Object.fromEntries(
-            (customers || []).map((customer) => [
-              customer.id,
-              customer.name,
-            ])
-          );
-        }
-      }
-
-      setRecentSales(
-        recentData.map((sale) => ({
-          ...sale,
-          customerName:
-            customerMap[sale.customer_id] ||
-            "Walk-in Customer",
-        }))
-      );
 
       setLoading(false);
     }
@@ -634,87 +575,6 @@ function Dashboard() {
       </div>
 
       <div className="dashboard-bottom-grid">
-        <div className="dashboard-table-card">
-          <div className="table-card-header">
-            <div className="chart-title-row">
-              <div className="dashboard-section-icon">
-                <FileText size={18} />
-              </div>
-
-              <div>
-                <h2>Recent Sales</h2>
-                <p>Latest transactions</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-table-wrap">
-            <table className="dashboard-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Customer</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {recentSales.length > 0 ? (
-                  recentSales.map((sale, index) => (
-                    <tr key={sale.id}>
-                      <td>{index + 1}</td>
-
-                      <td>
-                        <strong>
-                          {sale.customerName}
-                        </strong>
-                      </td>
-
-                      <td>
-                        {formatDate(sale.sale_date)}
-                      </td>
-
-                      <td>
-                        {formatMoney(sale.total)}
-                      </td>
-
-                      <td>
-                        {paymentLabel(
-                          sale.payment_method
-                        )}
-                      </td>
-
-                      <td>
-                        <span
-                          className={
-                            sale.status === "completed"
-                              ? "status-badge paid"
-                              : "status-badge"
-                          }
-                        >
-                          {sale.status || "Completed"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="dashboard-no-data"
-                    >
-                      No sales found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
         <div className="dashboard-table-card">
           <div className="table-card-header">
             <div className="chart-title-row">

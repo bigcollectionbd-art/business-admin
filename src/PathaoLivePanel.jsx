@@ -24,7 +24,6 @@ function classify(parcel) {
   if (/hold|exception|damage|lost/.test(raw)) return "hold";
   if (/\b(picked|picked up|pickup complete|pickup completed|pickup done|collected)\b|received at pickup hub/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
-  if (/pickup/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   return "pending";
 }
 

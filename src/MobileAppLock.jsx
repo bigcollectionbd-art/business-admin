@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { supabase } from "./supabase";
 
 const STORAGE_KEY = "bcb_mobile_app_lock_v1";
 const IDLE_MS = 15 * 60 * 1000;
@@ -78,6 +79,7 @@ export default function MobileAppLock({ children }) {
   const [mode, setMode] = useState(() => (readConfig() ? "unlock" : "setup"));
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
@@ -182,6 +184,42 @@ export default function MobileAppLock({ children }) {
     }
   };
 
+  const resetForgottenPin = async () => {
+    if (!accountPassword) {
+      setMessage("Please enter your account password.");
+      return;
+    }
+    setBusy(true);
+    setMessage("");
+    try {
+      const { data: currentData, error: currentError } = await supabase.auth.getUser();
+      if (currentError || !currentData?.user?.id || !currentData.user.email) {
+        throw new Error("Your login session could not be verified. Please sign in again.");
+      }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: currentData.user.email,
+        password: accountPassword,
+      });
+      if (error || data?.user?.id !== currentData.user.id) {
+        throw new Error("The account password is incorrect. Please try again.");
+      }
+      window.localStorage.removeItem(STORAGE_KEY);
+      configRef.current = null;
+      setConfig(null);
+      setMode("setup");
+      setPin("");
+      setConfirmPin("");
+      setAccountPassword("");
+      setCooldownUntil(0);
+      setMessage("");
+      setLocked(true);
+    } catch (error) {
+      setMessage(error?.message || "Unable to verify your account. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const verifyPin = async () => {
     if (!/^\d{6}$/.test(pin) || !config) {
       setMessage("Please enter a valid 6-digit PIN.");
@@ -232,7 +270,7 @@ export default function MobileAppLock({ children }) {
 
   if (mobile && (!config || locked)) {
     const remainingCooldown = Math.max(0, cooldownUntil - Date.now());
-    const submit = mode === "setup" ? saveNewPin : verifyPin;
+    const submit = mode === "setup" ? saveNewPin : mode === "forgot" ? resetForgottenPin : verifyPin;
     return (
       <div style={styles.overlay}>
         <form
@@ -242,30 +280,52 @@ export default function MobileAppLock({ children }) {
           <div style={styles.logo}>B</div>
           <h1 style={styles.title}>Big Collection BD</h1>
           <p style={styles.subtitle}>SECURE WORKSPACE ACCESS</p>
-          <h2 style={styles.heading}>{mode === "setup" ? "Create Your 6-Digit PIN" : "Welcome Back"}</h2>
+          <h2 style={styles.heading}>{mode === "setup" ? "Create Your 6-Digit PIN" : mode === "forgot" ? "Reset Your PIN" : "Welcome Back"}</h2>
           <p style={styles.helper}>
             {mode === "setup"
               ? "Create a 6-digit PIN to secure your workspace on this device."
+              : mode === "forgot"
+              ? "Verify your account with your login password to create a new PIN."
               : "Enter your 6-digit PIN to unlock your workspace."}
           </p>
-          <label style={styles.fieldLabel} htmlFor="bcb-pin">
-            {mode === "setup" ? "NEW PIN" : "ENTER PIN"}
-          </label>
-          <input
-            id="bcb-pin"
-            style={styles.input}
-            type="password"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            autoComplete="off"
-            value={pin}
-            onChange={(event) => { setPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
-            placeholder="••••••"
-            aria-label={mode === "setup" ? "Create 6-digit PIN" : "Enter 6-digit PIN"}
-            disabled={busy || remainingCooldown > 0}
-            autoFocus
-          />
+          {mode === "forgot" ? (
+            <>
+              <label style={styles.fieldLabel} htmlFor="bcb-account-password">ACCOUNT PASSWORD</label>
+              <input
+                id="bcb-account-password"
+                style={styles.input}
+                type="password"
+                autoComplete="current-password"
+                value={accountPassword}
+                onChange={(event) => { setAccountPassword(event.target.value); setMessage(""); }}
+                placeholder="Enter your login password"
+                aria-label="Account password"
+                disabled={busy}
+                autoFocus
+              />
+            </>
+          ) : (
+            <>
+              <label style={styles.fieldLabel} htmlFor="bcb-pin">
+                {mode === "setup" ? "NEW PIN" : "ENTER PIN"}
+              </label>
+              <input
+                id="bcb-pin"
+                style={styles.input}
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                autoComplete="off"
+                value={pin}
+                onChange={(event) => { setPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
+                placeholder="••••••"
+                aria-label={mode === "setup" ? "Create 6-digit PIN" : "Enter 6-digit PIN"}
+                disabled={busy || remainingCooldown > 0}
+                autoFocus
+              />
+            </>
+          )}
           {mode === "setup" && (
             <>
               <label style={styles.fieldLabel} htmlFor="bcb-confirm-pin">CONFIRM PIN</label>
@@ -287,8 +347,18 @@ export default function MobileAppLock({ children }) {
           )}
           {message && <p style={styles.message} role="alert">{message}</p>}
           <button style={styles.button} type="submit" disabled={busy || remainingCooldown > 0}>
-            {busy ? "Please wait..." : mode === "setup" ? "Save PIN" : "Unlock"}
+            {busy ? "Please wait..." : mode === "setup" ? "Save PIN" : mode === "forgot" ? "Verify & Reset PIN" : "Unlock"}
           </button>
+          {mode === "unlock" && (
+            <button type="button" onClick={() => { setMode("forgot"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>
+              Forgot PIN?
+            </button>
+          )}
+          {mode === "forgot" && (
+            <button type="button" onClick={() => { setMode("unlock"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>
+              Back to PIN
+            </button>
+          )}
           <p style={styles.note}>Your app also locks automatically after 15 minutes of inactivity.</p>
         </form>
       </div>
@@ -332,5 +402,6 @@ const styles = {
     fontWeight: 700, cursor: "pointer",
   },
   message: { margin: 0, color: "#b91c1c", fontSize: 13 },
+  linkButton: { border: 0, background: "transparent", color: "#2563eb", fontSize: 13, fontWeight: 700, padding: "8px 4px", cursor: "pointer" },
   note: { margin: "8px 0 0", color: "#64748b", fontSize: 11, lineHeight: 1.5, textAlign: "center" },
 };

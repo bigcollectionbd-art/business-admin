@@ -80,45 +80,40 @@ const MOBILE_BUSINESS_QUOTES = [
   "নিজের অগ্রগতি মাপুন গতকালের নিজের সঙ্গে, অন্যের সঙ্গে নয়।"
 ];
 
-const MOBILE_QUOTE_STORAGE_KEY = "bcb_mobile_business_quote_v1";
-const MOBILE_QUOTE_INTERVAL = 24 * 60 * 60 * 1000;
+function getDhakaDateParts() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  return Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+}
 
 function getMobileBusinessQuote() {
-  const now = Date.now();
+  const { year, month, day } = getDhakaDateParts();
+  const dayNumber = Math.floor(Date.UTC(Number(year), Number(month) - 1, Number(day)) / 86400000);
+  return MOBILE_BUSINESS_QUOTES[dayNumber % MOBILE_BUSINESS_QUOTES.length];
+}
 
-  try {
-    const saved = JSON.parse(localStorage.getItem(MOBILE_QUOTE_STORAGE_KEY) || "null");
-    if (
-      saved &&
-      Number.isInteger(saved.index) &&
-      saved.index >= 0 &&
-      saved.index < MOBILE_BUSINESS_QUOTES.length &&
-      Number.isFinite(saved.shownAt) &&
-      now - saved.shownAt < MOBILE_QUOTE_INTERVAL &&
-      now >= saved.shownAt
-    ) {
-      return MOBILE_BUSINESS_QUOTES[saved.index];
-    }
-
-    const nextIndex = saved && Number.isInteger(saved.index)
-      ? (saved.index + 1) % MOBILE_BUSINESS_QUOTES.length
-      : 0;
-
-    localStorage.setItem(
-      MOBILE_QUOTE_STORAGE_KEY,
-      JSON.stringify({ index: nextIndex, shownAt: now })
-    );
-
-    return MOBILE_BUSINESS_QUOTES[nextIndex];
-  } catch (error) {
-    return MOBILE_BUSINESS_QUOTES[
-      Math.floor(now / MOBILE_QUOTE_INTERVAL) % MOBILE_BUSINESS_QUOTES.length
-    ];
-  }
+function getMillisecondsUntilDhakaMidnight() {
+  const { year, month, day } = getDhakaDateParts();
+  const nextMidnightUtc = Date.UTC(Number(year), Number(month) - 1, Number(day) + 1) - 6 * 60 * 60 * 1000;
+  return Math.max(1000, nextMidnightUtc - Date.now() + 100);
 }
 
 function Dashboard() {
-  const [mobileBusinessQuote] = useState(() => getMobileBusinessQuote());
+  const [mobileBusinessQuote, setMobileBusinessQuote] = useState(() => getMobileBusinessQuote());
+
+  useEffect(() => {
+    const midnightTimer = window.setTimeout(() => {
+      setMobileBusinessQuote(getMobileBusinessQuote());
+    }, getMillisecondsUntilDhakaMidnight());
+
+    return () => window.clearTimeout(midnightTimer);
+  }, [mobileBusinessQuote]);
+
   const [todaySales, setTodaySales] = useState([]);
   const [monthlySales, setMonthlySales] = useState([]);
   const [recentSales, setRecentSales] = useState([]);

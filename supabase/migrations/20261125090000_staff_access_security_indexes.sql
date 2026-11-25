@@ -38,36 +38,35 @@ BEGIN
   END LOOP;
 END $$;
 
+-- Active owner, admin and staff users can view and operate Pathao parcels.
+-- Pathao credentials remain in pathao_auth and are not granted to client roles.
 DROP POLICY IF EXISTS "Authenticated users can read Pathao parcels" ON public.pathao_parcels;
-CREATE POLICY "Active staff can read Pathao parcels"
-  ON public.pathao_parcels FOR SELECT TO authenticated
-  USING (get_my_role() = ANY (ARRAY['owner','admin','staff']));
-CREATE POLICY "Owner can insert Pathao parcels"
-  ON public.pathao_parcels FOR INSERT TO authenticated
-  WITH CHECK (get_my_role() = 'owner');
-CREATE POLICY "Owner can update Pathao parcels"
-  ON public.pathao_parcels FOR UPDATE TO authenticated
-  USING (get_my_role() = 'owner') WITH CHECK (get_my_role() = 'owner');
-CREATE POLICY "Owner can delete Pathao parcels"
-  ON public.pathao_parcels FOR DELETE TO authenticated
-  USING (get_my_role() = 'owner');
+DROP POLICY IF EXISTS "Active staff can read Pathao parcels" ON public.pathao_parcels;
+DROP POLICY IF EXISTS "Owner can insert Pathao parcels" ON public.pathao_parcels;
+DROP POLICY IF EXISTS "Owner can update Pathao parcels" ON public.pathao_parcels;
+DROP POLICY IF EXISTS "Owner can delete Pathao parcels" ON public.pathao_parcels;
+CREATE POLICY "Active operational users can manage Pathao parcels"
+  ON public.pathao_parcels FOR ALL TO authenticated
+  USING (get_my_role() = ANY (ARRAY['owner','admin','staff']))
+  WITH CHECK (get_my_role() = ANY (ARRAY['owner','admin','staff']));
 
 DROP POLICY IF EXISTS "Authenticated users can read Pathao status history" ON public.pathao_status_history;
-CREATE POLICY "Active staff can read Pathao status history"
-  ON public.pathao_status_history FOR SELECT TO authenticated
-  USING (get_my_role() = ANY (ARRAY['owner','admin','staff']));
-CREATE POLICY "Owner can insert Pathao status history"
-  ON public.pathao_status_history FOR INSERT TO authenticated
-  WITH CHECK (get_my_role() = 'owner');
-CREATE POLICY "Owner can update Pathao status history"
-  ON public.pathao_status_history FOR UPDATE TO authenticated
-  USING (get_my_role() = 'owner') WITH CHECK (get_my_role() = 'owner');
-CREATE POLICY "Owner can delete Pathao status history"
-  ON public.pathao_status_history FOR DELETE TO authenticated
-  USING (get_my_role() = 'owner');
+DROP POLICY IF EXISTS "Active staff can read Pathao status history" ON public.pathao_status_history;
+DROP POLICY IF EXISTS "Owner can insert Pathao status history" ON public.pathao_status_history;
+DROP POLICY IF EXISTS "Owner can update Pathao status history" ON public.pathao_status_history;
+DROP POLICY IF EXISTS "Owner can delete Pathao status history" ON public.pathao_status_history;
+CREATE POLICY "Active operational users can manage Pathao status history"
+  ON public.pathao_status_history FOR ALL TO authenticated
+  USING (get_my_role() = ANY (ARRAY['owner','admin','staff']))
+  WITH CHECK (get_my_role() = ANY (ARRAY['owner','admin','staff']));
 
+-- Only the owner can access other users' profiles or manage accounts/roles.
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Owner can manage profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users can read own profile or owner can read all" ON public.profiles;
+DROP POLICY IF EXISTS "Owner can insert profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Owner can update profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Owner can delete profiles" ON public.profiles;
 CREATE POLICY "Users can read own profile or owner can read all"
   ON public.profiles FOR SELECT TO authenticated
   USING (id = (SELECT auth.uid()) OR get_my_role() = 'owner');

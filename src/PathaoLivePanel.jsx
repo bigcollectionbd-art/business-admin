@@ -178,7 +178,6 @@ export default function PathaoLivePanel() {
         <span className="pathao-card-icon"><Icon size={20}/></span><strong>{loading || error ? "—" : counts[g.key] ?? 0}</strong><b>{g.title}</b><small>{g.desc}</small><span className="pathao-card-action">পার্সেল দেখুন →</span>
       </button>; })}
     </div>
-    <p className="pathao-live-footnote">সংখ্যা আপনার Management System-এ সংরক্ষিত Pathao পার্সেল থেকে নেওয়া।</p>
     {selected && <div className="pathao-modal-backdrop" onClick={closeDetails}>
       <div className="pathao-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
         <div className="pathao-modal-head">

@@ -9,15 +9,23 @@ import {
 import { supabase } from "./supabase";
 import "./Settings.css";
 
+// Restore order follows the database foreign-key relationships.
+// Pathao credentials (pathao_auth) and Auth accounts are intentionally excluded.
 const BACKUP_TABLES = [
   "customers",
+  "categories",
+  "products",
   "sales",
   "sale_items",
   "invoices",
   "invoice_items",
   "payments",
   "expenses",
+  "stock_transactions",
+  "pathao_parcels",
+  "pathao_status_history",
 ];
+const BACKUP_PAGE_SIZE = 500;
 
 function Settings() {
   const [backupLoading, setBackupLoading] = useState(false);
@@ -214,21 +222,37 @@ function Settings() {
       const backup = {
         app: "Big Collection BD",
         type: "business-data-backup",
-        version: 1,
+        version: 2,
         created_at: new Date().toISOString(),
         tables: {},
       };
 
       for (const table of BACKUP_TABLES) {
-        const { data, error } = await supabase
-          .from(table)
-          .select("*");
+        const rows = [];
+        let offset = 0;
 
-        if (error) {
-          throw new Error(`${table}: ${error.message}`);
+        while (true) {
+          const { data, error } = await supabase
+            .from(table)
+            .select("*")
+            .order("id", { ascending: true })
+            .range(offset, offset + BACKUP_PAGE_SIZE - 1);
+
+          if (error) {
+            throw new Error(`${table}: ${error.message}`);
+          }
+
+          const pageRows = data || [];
+          rows.push(...pageRows);
+
+          if (pageRows.length < BACKUP_PAGE_SIZE) {
+            break;
+          }
+
+          offset += pageRows.length;
         }
 
-        backup.tables[table] = data || [];
+        backup.tables[table] = rows;
       }
 
       const json = JSON.stringify(backup, null, 2);
@@ -290,14 +314,18 @@ function Settings() {
           ? backup.tables[table]
           : [];
 
-        if (rows.length === 0) continue;
+        for (let offset = 0; offset < rows.length; offset += BACKUP_PAGE_SIZE) {
+          const batch = rows.slice(offset, offset + BACKUP_PAGE_SIZE);
 
-        const { error } = await supabase
-          .from(table)
-          .upsert(rows, { onConflict: "id" });
+          const { error } = await supabase
+            .from(table)
+            .upsert(batch, { onConflict: "id" });
 
-        if (error) {
-          throw new Error(`${table}: ${error.message}`);
+          if (error) {
+            throw new Error(
+              `${table} (records ${offset + 1}-${offset + batch.length}): ${error.message}`
+            );
+          }
         }
       }
 
@@ -528,9 +556,10 @@ function Settings() {
         <h2>Data Backup</h2>
 
         <p className="backup-description">
-          Backup and restore your business records. This backup
-          includes customers, sales, invoices, payments and
-          expenses.
+          Backup and restore customers, categories, products, stock history,
+          sales, invoices, payments, expenses and Pathao parcel/status history.
+          Login accounts and Pathao API credentials are intentionally excluded.
+          Restore merges records by ID; it does not delete existing records.
         </p>
 
         <div className="backup-actions">

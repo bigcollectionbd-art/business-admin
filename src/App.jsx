@@ -201,7 +201,7 @@ function App() {
     <div className="admin-app">
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="logo">
-          <div className="logo-icon">B</div>
+          <img className="logo-icon" src="/app-icon.svg" alt="Big Collection BD logo" />
 
           <div>
             <strong>Big Collection BD</strong>

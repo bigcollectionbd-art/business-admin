@@ -30,7 +30,7 @@ function classify(parcel) {
 
 function fmt(value) {
   if (!value) return "তথ্য পাওয়া যায়নি";
-  return new Date(value).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(value).toLocaleString("en-GB", { timeZone: "Asia/Dhaka", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 export default function PathaoLivePanel() {

@@ -34,7 +34,7 @@ function fmt(value) {
 }
 
 function invoiceSerial(value) {
-  const match = String(value || "").match(/(\\d+)$/);
+  const match = String(value || "").match(/(\d+)$/);
   return match ? Number(match[1]) : null;
 }
 

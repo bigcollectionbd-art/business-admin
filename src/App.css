@@ -42,13 +42,11 @@ button {
 .logo-icon {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: #2563eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: bold;
+  flex: 0 0 42px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 2px;
 }
 
 .logo strong {

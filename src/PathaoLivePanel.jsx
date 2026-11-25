@@ -28,33 +28,21 @@ function classify(parcel) {
   return "pending";
 }
 
-function isReturnedToMerchant(parcel, history = []) {
-  const statuses = [
-    parcel.order_status,
-    parcel.order_status_slug,
-    ...history.filter((item) => item.parcel_id === parcel.id).flatMap((item) => [item.order_status, item.order_status_slug]),
-  ].filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
-  return /returned to merchant/.test(statuses) || /(^|\\s)returned($|\\s)/.test(statuses);
+function isReturnedToMerchant(parcel) {
+  const current = [parcel.order_status, parcel.order_status_slug]
+    .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  return /returned to merchant|return to merchant|return delivered|return completed/.test(current);
 }
 
-function returnProgress(parcel, history = []) {
-  const statuses = [
-    parcel.order_status,
-    parcel.order_status_slug,
-    ...history.filter((item) => item.parcel_id === parcel.id).flatMap((item) => [item.order_status, item.order_status_slug]),
-  ].filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
-  if (/returned to merchant/.test(statuses) || /(^|\\s)returned($|\\s)/.test(statuses)) {
-    return { title: "Returned to Merchant", note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
-  }
-  if (/return in transit/.test(statuses)) {
-    return { title: "Returning to Merchant", note: "পার্সেল Merchant-এর কাছে ফেরত আসার পথে" };
-  }
-  if (/return id created/.test(statuses)) {
-    return { title: "Return Initiated", note: "ফেরত পাঠানোর প্রক্রিয়া শুরু হয়েছে" };
+function returnProgress(parcel) {
+  const current = [parcel.order_status, parcel.order_status_slug]
+    .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  if (isReturnedToMerchant(parcel)) {
+    return { title: parcel.order_status || parcel.order_status_slug, note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
   }
   return {
     title: parcel.order_status || parcel.order_status_slug || "Return update pending",
-    note: "Pathao-এর পরবর্তী Return update এলে এখানে দেখানো হবে",
+    note: "Pathao-এর সর্বশেষ Return Status এখানে দেখানো হচ্ছে। পরবর্তী আপডেট এলে স্বয়ংক্রিয়ভাবে পরিবর্তন হবে।",
   };
 }
 
@@ -137,7 +125,7 @@ export default function PathaoLivePanel() {
 
       const activeOrRecent = allParcels.filter((p) => {
         const booked = p.booked_at || p.created_at;
-        const awaitingMerchantReturn = classify(p) === "returned" && !isReturnedToMerchant(p, allHistory);
+        const awaitingMerchantReturn = classify(p) === "returned" && !isReturnedToMerchant(p);
         return awaitingMerchantReturn || !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
@@ -182,7 +170,7 @@ export default function PathaoLivePanel() {
     const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const isReturnParcel = classify(p) === "returned";
-    const returnInfo = isReturnParcel ? returnProgress(p, history) : null;
+    const returnInfo = isReturnParcel ? returnProgress(p) : null;
     return <div className="pathao-full-details">
       {isReturnParcel && <section className="pathao-detail-section">
         <h4>Return Tracking</h4>

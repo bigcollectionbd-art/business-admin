@@ -156,12 +156,19 @@ export default function MobileAppLock({ children }) {
   }, [mobile, config, lockNow]);
 
   const saveNewPin = async () => {
-    if (!/^\d{6}$/.test(pin)) {
-      setMessage("Please enter a 6-digit PIN.");
+    if (mode === "setup") {
+      if (!/^\d{6}$/.test(pin)) {
+        setMessage("Please enter a 6-digit PIN.");
+        return;
+      }
+      setConfirmPin("");
+      setMode("confirm");
+      setMessage("");
       return;
     }
-    if (pin !== confirmPin) {
+    if (mode === "confirm" && pin !== confirmPin) {
       setMessage("The PINs do not match. Please try again.");
+      setConfirmPin("");
       return;
     }
     setBusy(true);
@@ -270,123 +277,67 @@ export default function MobileAppLock({ children }) {
 
   if (mobile && (!config || locked)) {
     const remainingCooldown = Math.max(0, cooldownUntil - Date.now());
-    const submit = mode === "setup" ? saveNewPin : mode === "forgot" ? resetForgottenPin : verifyPin;
+    const submit = (mode === "setup" || mode === "confirm") ? saveNewPin : mode === "forgot" ? resetForgottenPin : verifyPin;
+    const activePin = mode === "confirm" ? confirmPin : pin;
+    const addDigit = (digit) => {
+      if (busy || remainingCooldown > 0) return;
+      if (mode === "confirm") setConfirmPin((value) => (value + digit).slice(0, 6));
+      else setPin((value) => (value + digit).slice(0, 6));
+      setMessage("");
+    };
+    const removeDigit = () => {
+      if (mode === "confirm") setConfirmPin((value) => value.slice(0, -1));
+      else setPin((value) => value.slice(0, -1));
+      setMessage("");
+    };
     return (
       <div style={styles.overlay}>
-        <div style={styles.glowOne} />
-        <div style={styles.glowTwo} />
-        <form
-          style={styles.panel}
-          onSubmit={(event) => { event.preventDefault(); if (!busy && !remainingCooldown) submit(); }}
-        >
-          <div style={styles.brandRow}>
-            <div style={styles.logo}>
-              <svg viewBox="0 0 24 24" width="29" height="29" fill="none" aria-hidden="true">
-                <path d="M12 3 19 6v5.2c0 4.5-2.9 7.8-7 9.8-4.1-2-7-5.3-7-9.8V6l7-3Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-                <path d="m9 12 2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <div style={styles.blueWave} />
+        <form style={styles.screen} onSubmit={(event) => { event.preventDefault(); if (!busy && !remainingCooldown) submit(); }}>
+          <div style={styles.brand}>
+            <div style={styles.brandShield}>
+              <svg viewBox="0 0 24 24" width="54" height="54" fill="none" aria-hidden="true">
+                <path d="M12 2.5 20 6v5.6c0 5-3.3 8.4-8 10.3-4.7-1.9-8-5.3-8-10.3V6l8-3.5Z" stroke="currentColor" strokeWidth="1.7" />
+                <rect x="8" y="10" width="8" height="7" rx="1.5" fill="currentColor"/>
+                <path d="M10 10V8.5a2 2 0 0 1 4 0V10" stroke="#073477" strokeWidth="1.6"/>
               </svg>
             </div>
-            <div>
-              <h1 style={styles.title}>Big Collection BD</h1>
-              <p style={styles.subtitle}>MANAGEMENT SYSTEM</p>
-            </div>
+            <h1 style={styles.brandTitle}>Big Collection BD</h1>
+            <p style={styles.brandSubtitle}>MANAGEMENT SYSTEM</p>
+            <div style={styles.goldRule} />
           </div>
-          <div style={styles.divider} />
-          <div style={styles.headingGroup}>
-            <div style={styles.secureBadge}>
-              <span style={styles.secureDot} />
-              DEVICE SECURITY
-            </div>
-            <h2 style={styles.heading}>{mode === "setup" ? "Create your PIN" : mode === "forgot" ? "Reset your PIN" : "Welcome back"}</h2>
+          <section style={styles.card}>
+            <h2 style={styles.heading}>{mode === "setup" ? "Create Your PIN" : mode === "confirm" ? "Confirm Your PIN" : mode === "forgot" ? "Reset Your PIN" : "Enter Your PIN"}</h2>
             <p style={styles.helper}>
-              {mode === "setup"
-                ? "Set a 6-digit PIN to keep your workspace secure on this device."
-                : mode === "forgot"
-                ? "Verify your account password to set a new device PIN."
-                : "Enter your PIN to securely access your workspace."}
+              {mode === "setup" ? "Secure your account on this device" : mode === "confirm" ? "Re-enter your 6-digit PIN" : mode === "forgot" ? "Verify your account password to set a new PIN" : "Unlock your account"}
             </p>
-          </div>
-          {mode === "forgot" ? (
-            <>
-              <label style={styles.fieldLabel} htmlFor="bcb-account-password">ACCOUNT PASSWORD</label>
-              <input
-                id="bcb-account-password"
-                style={styles.input}
-                type="password"
-                autoComplete="current-password"
-                value={accountPassword}
-                onChange={(event) => { setAccountPassword(event.target.value); setMessage(""); }}
-                placeholder="Enter your login password"
-                aria-label="Account password"
-                disabled={busy}
-                autoFocus
-              />
-            </>
-          ) : (
-            <>
-              <label style={styles.fieldLabel} htmlFor="bcb-pin">{mode === "setup" ? "NEW 6-DIGIT PIN" : "YOUR 6-DIGIT PIN"}</label>
-              <input
-                id="bcb-pin"
-                style={styles.input}
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={6}
-                autoComplete="off"
-                value={pin}
-                onChange={(event) => { setPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
-                placeholder="Enter 6 digits"
-                aria-label={mode === "setup" ? "Create 6-digit PIN" : "Enter 6-digit PIN"}
-                disabled={busy || remainingCooldown > 0}
-                autoFocus
-              />
-              <div style={styles.pinDots} aria-hidden="true">
-                {Array.from({ length: 6 }, (_, index) => <span key={index} style={{ ...styles.pinDot, ...(index < pin.length ? styles.pinDotFilled : {}) }} />)}
-              </div>
-            </>
-          )}
-          {mode === "setup" && (
-            <>
-              <label style={styles.fieldLabel} htmlFor="bcb-confirm-pin">CONFIRM YOUR PIN</label>
-              <input
-                id="bcb-confirm-pin"
-                style={styles.input}
-                type="password"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={6}
-                autoComplete="off"
-                value={confirmPin}
-                onChange={(event) => { setConfirmPin(event.target.value.replace(/\D/g, "").slice(0, 6)); setMessage(""); }}
-                placeholder="Re-enter 6 digits"
-                aria-label="Confirm 6-digit PIN"
-                disabled={busy}
-              />
-              <div style={styles.pinDots} aria-hidden="true">
-                {Array.from({ length: 6 }, (_, index) => <span key={index} style={{ ...styles.pinDot, ...(index < confirmPin.length ? styles.pinDotFilled : {}) }} />)}
-              </div>
-            </>
-          )}
-          {message && <p style={styles.message} role="alert">{message}</p>}
-          <button style={styles.button} type="submit" disabled={busy || remainingCooldown > 0}>
-            {busy ? "Please wait..." : mode === "setup" ? "Create Secure PIN" : mode === "forgot" ? "Verify & Reset PIN" : "Unlock Workspace"}
-            {!busy && <span aria-hidden="true"> →</span>}
-          </button>
-          {mode === "unlock" && (
-            <button type="button" onClick={() => { setMode("forgot"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>
-              Forgot PIN?
-            </button>
-          )}
-          {mode === "forgot" && (
-            <button type="button" onClick={() => { setMode("unlock"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>
-              Back to PIN
-            </button>
-          )}
-          <div style={styles.footer}>
-            <span style={styles.footerIcon}>✓</span>
-            <span>Your PIN is stored securely on this device only.</span>
-          </div>
-          <p style={styles.note}>For your protection, the app locks after 15 minutes of inactivity.</p>
+            {mode === "forgot" ? (
+              <>
+                <label style={styles.fieldLabel} htmlFor="bcb-account-password">ACCOUNT PASSWORD</label>
+                <input id="bcb-account-password" style={styles.input} type="password" autoComplete="current-password" value={accountPassword} onChange={(event) => { setAccountPassword(event.target.value); setMessage(""); }} placeholder="Enter your login password" aria-label="Account password" disabled={busy} autoFocus />
+              </>
+            ) : (
+              <>
+                <div style={styles.pinDots} aria-label={activePin.length + " of 6 digits entered"}>
+                  {Array.from({ length: 6 }, (_, index) => <span key={index} style={{ ...styles.pinDot, ...(index < activePin.length ? styles.pinDotFilled : {}) }} />)}
+                </div>
+                <div style={styles.keypad}>
+                  {["1","2","3","4","5","6","7","8","9","back","0","done"].map((key) => (
+                    <button key={key} type={key === "done" ? "submit" : "button"} style={key === "done" ? styles.keyDone : key === "back" ? styles.keySpecial : styles.key} onClick={key === "back" ? removeDigit : key === "done" ? undefined : () => addDigit(key)} disabled={busy || remainingCooldown > 0 || (key === "done" && activePin.length !== 6)} aria-label={key === "back" ? "Delete last digit" : key === "done" ? "Submit PIN" : "Digit " + key}>
+                      {key === "back" ? "⌫" : key === "done" ? "✓" : key}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {message && <p style={styles.message} role="alert">{message}</p>}
+            {mode === "forgot" && <button style={styles.button} type="submit" disabled={busy}>{busy ? "Please wait..." : "Verify & Reset PIN"}</button>}
+            {mode === "unlock" && <button type="button" onClick={() => { setMode("forgot"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>Forgot PIN?</button>}
+            {mode === "forgot" && <button type="button" onClick={() => { setMode("unlock"); setAccountPassword(""); setMessage(""); }} disabled={busy} style={styles.linkButton}>Back to PIN</button>}
+            {mode === "confirm" && <button type="button" onClick={() => { setMode("setup"); setConfirmPin(""); setMessage(""); }} style={styles.linkButton}>Back</button>}
+            <div style={styles.footer}><span style={styles.footerIcon}>✓</span><span>Your data stays protected on this device</span></div>
+          </section>
+          <p style={styles.bottomTagline}>— Buy More Save More —</p>
         </form>
       </div>
     );
@@ -396,57 +347,30 @@ export default function MobileAppLock({ children }) {
 }
 
 const styles = {
-  overlay: {
-    position: "fixed", inset: 0, zIndex: 99999, display: "flex",
-    alignItems: "center", justifyContent: "center", padding: "20px 16px",
-    overflowY: "auto",
-    background: "radial-gradient(circle at 15% 15%, rgba(55,111,190,.34), transparent 34%), radial-gradient(circle at 90% 85%, rgba(35,79,139,.3), transparent 32%), linear-gradient(145deg, #08172d 0%, #102b4d 52%, #071426 100%)",
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
-  },
-  glowOne: { position: "fixed", width: 220, height: 220, borderRadius: "50%", background: "rgba(75,139,232,.10)", filter: "blur(55px)", top: "-80px", left: "-70px", pointerEvents: "none" },
-  glowTwo: { position: "fixed", width: 240, height: 240, borderRadius: "50%", background: "rgba(42,91,157,.12)", filter: "blur(60px)", bottom: "-100px", right: "-90px", pointerEvents: "none" },
-  panel: {
-    position: "relative", zIndex: 1, width: "100%", maxWidth: 410,
-    maxHeight: "calc(100dvh - 32px)", overflowY: "auto",
-    padding: "30px 26px 23px", borderRadius: 25,
-    background: "linear-gradient(180deg, #ffffff 0%, #f9fbff 100%)",
-    border: "1px solid rgba(255,255,255,.72)",
-    boxShadow: "0 28px 90px rgba(0,0,0,.38), 0 3px 12px rgba(10,35,70,.12)",
-    display: "flex", flexDirection: "column", gap: 12, textAlign: "left",
-  },
-  brandRow: { display: "flex", alignItems: "center", justifyContent: "center", gap: 12, paddingBottom: 2 },
-  logo: {
-    width: 52, height: 52, flexShrink: 0, display: "grid", placeItems: "center",
-    borderRadius: 17, background: "linear-gradient(145deg, #347df0, #1746a5)",
-    color: "#fff", boxShadow: "0 8px 20px rgba(37,99,235,.25)",
-  },
-  title: { margin: 0, color: "#14243b", fontSize: 19, fontWeight: 800, letterSpacing: "-.45px" },
-  subtitle: { margin: "4px 0 0", color: "#71839b", fontSize: 9, letterSpacing: 1.8, fontWeight: 800 },
-  divider: { height: 1, background: "linear-gradient(90deg, transparent, #dce5f1, transparent)", margin: "5px 0 4px" },
-  headingGroup: { display: "flex", flexDirection: "column", gap: 7, marginBottom: 3 },
-  secureBadge: { display: "inline-flex", alignItems: "center", gap: 7, color: "#3265aa", fontSize: 9, letterSpacing: 1.35, fontWeight: 800 },
-  secureDot: { width: 7, height: 7, borderRadius: "50%", background: "#2f80ed", boxShadow: "0 0 0 3px rgba(47,128,237,.12)" },
-  heading: { margin: 0, color: "#14243b", fontSize: 25, fontWeight: 800, letterSpacing: "-.7px" },
-  helper: { margin: 0, color: "#66778e", fontSize: 13, lineHeight: 1.55 },
-  fieldLabel: { marginTop: 4, marginBottom: -5, color: "#40536d", fontSize: 9, fontWeight: 800, letterSpacing: 1.15 },
-  input: {
-    width: "100%", padding: "14px 15px", border: "1.5px solid #d8e2ef",
-    borderRadius: 12, fontSize: 15, textAlign: "center", letterSpacing: 2,
-    outlineColor: "#3478e5", boxSizing: "border-box", background: "#f7faff", color: "#172b47",
-    transition: "border-color .2s, box-shadow .2s",
-  },
-  pinDots: { display: "flex", justifyContent: "center", gap: 10, margin: "-2px 0 2px" },
-  pinDot: { width: 8, height: 8, borderRadius: "50%", background: "#d7e0ec", transition: "background .15s, transform .15s" },
-  pinDotFilled: { background: "#3478e5", transform: "scale(1.18)" },
-  button: {
-    width: "100%", padding: "15px 16px", marginTop: 5, border: 0, borderRadius: 12,
-    background: "linear-gradient(100deg, #347cf0 0%, #1c50b5 100%)",
-    color: "#fff", fontSize: 14, fontWeight: 800, letterSpacing: ".15px",
-    cursor: "pointer", boxShadow: "0 9px 20px rgba(37,99,235,.22)",
-  },
-  message: { margin: 0, padding: "10px 12px", borderRadius: 10, background: "#fff1f1", color: "#b42318", fontSize: 12, lineHeight: 1.45 },
-  linkButton: { border: 0, background: "transparent", color: "#2866c1", fontSize: 12, fontWeight: 800, padding: "5px 4px", cursor: "pointer" },
-  footer: { display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 5, color: "#62748c", fontSize: 10 },
-  footerIcon: { width: 16, height: 16, display: "grid", placeItems: "center", borderRadius: "50%", background: "#e7f5ed", color: "#21834a", fontSize: 10, fontWeight: 900 },
-  note: { margin: "-5px 0 0", color: "#8a98aa", fontSize: 10, lineHeight: 1.45, textAlign: "center" },
+  overlay: { position: "fixed", inset: 0, zIndex: 99999, overflowY: "auto", background: "linear-gradient(155deg, #06265f 0%, #073d91 52%, #041d4c 100%)", fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif", color: "#fff" },
+  blueWave: { position: "fixed", inset: 0, pointerEvents: "none", opacity: .45, background: "radial-gradient(ellipse at 85% 16%, rgba(35,115,229,.65), transparent 36%), radial-gradient(ellipse at 5% 88%, rgba(26,92,187,.55), transparent 38%)" },
+  screen: { position: "relative", zIndex: 1, width: "100%", maxWidth: 440, minHeight: "100dvh", margin: "0 auto", padding: "max(28px, env(safe-area-inset-top)) 20px max(18px, env(safe-area-inset-bottom))", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "center", gap: 18 },
+  brand: { textAlign: "center", padding: "4px 0 0", color: "#fff" },
+  brandShield: { color: "#f5d27a", display: "flex", justifyContent: "center", marginBottom: 4, filter: "drop-shadow(0 4px 8px rgba(0,0,0,.2))" },
+  brandTitle: { margin: 0, color: "#fff", fontSize: 25, fontWeight: 800, letterSpacing: "-.7px" },
+  brandSubtitle: { margin: "6px 0 0", color: "rgba(255,255,255,.9)", fontSize: 11, letterSpacing: 3, fontWeight: 600 },
+  goldRule: { width: 76, height: 3, borderRadius: 5, margin: "14px auto 0", background: "linear-gradient(90deg, #d8a943, #ffe5a0, #d8a943)" },
+  card: { width: "100%", boxSizing: "border-box", padding: "27px 22px 22px", borderRadius: 25, background: "linear-gradient(180deg, #fff 0%, #f7faff 100%)", color: "#09275e", boxShadow: "0 20px 55px rgba(0,12,40,.3)", display: "flex", flexDirection: "column", gap: 14, textAlign: "center" },
+  heading: { margin: 0, color: "#09275e", fontSize: 25, fontWeight: 800, letterSpacing: "-.6px" },
+  helper: { margin: "-8px 0 5px", color: "#182f5c", fontSize: 14, fontWeight: 500 },
+  pinDots: { display: "flex", justifyContent: "center", gap: 13, padding: "9px 0 13px" },
+  pinDot: { width: 18, height: 18, borderRadius: "50%", border: "2px solid #b9cce7", background: "#fff", boxSizing: "border-box" },
+  pinDotFilled: { borderColor: "#075bd8", background: "#075bd8", boxShadow: "0 0 0 3px rgba(7,91,216,.1)" },
+  keypad: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, maxWidth: 300, width: "100%", margin: "0 auto" },
+  key: { height: 62, borderRadius: 50, border: "1.5px solid #dce7f7", background: "linear-gradient(145deg, #fff, #edf3fc)", color: "#09275e", fontSize: 27, fontWeight: 600, boxShadow: "0 2px 5px rgba(16,55,112,.04)" },
+  keySpecial: { height: 62, borderRadius: 50, border: 0, background: "#e1ebfa", color: "#09275e", fontSize: 25, fontWeight: 700 },
+  keyDone: { height: 62, borderRadius: 50, border: 0, background: "linear-gradient(145deg, #0871f7, #0649c5)", color: "#fff", fontSize: 27, fontWeight: 800, boxShadow: "0 5px 14px rgba(0,79,201,.2)" },
+  fieldLabel: { color: "#405b86", fontSize: 10, fontWeight: 800, letterSpacing: 1.1, textAlign: "left" },
+  input: { width: "100%", padding: "15px", border: "1.5px solid #d8e2ef", borderRadius: 12, fontSize: 15, textAlign: "center", boxSizing: "border-box", background: "#f7faff", color: "#172b47" },
+  button: { width: "100%", padding: 15, border: 0, borderRadius: 12, background: "linear-gradient(100deg, #0871f7, #0649c5)", color: "#fff", fontSize: 14, fontWeight: 800 },
+  message: { margin: 0, padding: "10px 12px", borderRadius: 10, background: "#fff1f1", color: "#b42318", fontSize: 12 },
+  linkButton: { border: 0, background: "transparent", color: "#1459b5", fontSize: 13, fontWeight: 800, padding: "5px", cursor: "pointer" },
+  footer: { display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 2, padding: "13px 8px", borderRadius: 40, background: "#e4efff", color: "#0846a2", fontSize: 12, fontWeight: 700 },
+  footerIcon: { width: 21, height: 21, borderRadius: "50%", background: "#0871e8", color: "#fff", display: "grid", placeItems: "center", fontSize: 13, fontWeight: 900 },
+  bottomTagline: { margin: "auto 0 0", paddingTop: 2, color: "#f6d47e", textAlign: "center", fontFamily: "Georgia, serif", fontSize: 15, fontStyle: "italic", letterSpacing: ".3px" },
 };

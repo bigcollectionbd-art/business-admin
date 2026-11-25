@@ -35,14 +35,25 @@ function isReturnedToMerchant(parcel) {
 }
 
 function returnProgress(parcel) {
+  const status = parcel.order_status || parcel.order_status_slug || "Return update pending";
   const current = [parcel.order_status, parcel.order_status_slug]
     .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+
   if (isReturnedToMerchant(parcel)) {
-    return { title: parcel.order_status || parcel.order_status_slug, note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
+    return { title: status, note: "Pathao নিশ্চিত করেছে—পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে।" };
   }
+
+  if (/returning to merchant|return in transit|returning to hub|returning to sender/.test(current)) {
+    return { title: status, note: "Pathao-এর সর্বশেষ আপডেট অনুযায়ী পার্সেল ফেরত আসার পথে। Merchant-এর কাছে পৌঁছানো এখনো নিশ্চিত হয়নি।" };
+  }
+
+  if (/paid return|return initiated|return process|return requested/.test(current)) {
+    return { title: status, note: "Pathao-তে Return প্রক্রিয়া শুরু হয়েছে। পার্সেল Merchant-এর কাছে পৌঁছেছে—এমন নিশ্চিত আপডেট এখনো পাওয়া যায়নি।" };
+  }
+
   return {
-    title: parcel.order_status || parcel.order_status_slug || "Return update pending",
-    note: "Pathao-এর সর্বশেষ Return Status এখানে দেখানো হচ্ছে। পরবর্তী আপডেট এলে স্বয়ংক্রিয়ভাবে পরিবর্তন হবে।",
+    title: status,
+    note: `Pathao-এর সর্বশেষ Return Status: ${status}। Merchant-এর কাছে ফেরত পৌঁছানোর নিশ্চিত আপডেট এখনো পাওয়া যায়নি।`,
   };
 }
 

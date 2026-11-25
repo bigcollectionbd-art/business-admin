@@ -6,7 +6,7 @@ const MAX_ATTEMPTS = 5;
 const COOLDOWN_MS = 5 * 60 * 1000;
 
 function isMobileViewport() {
-  return window.matchMedia("(max-width: 700px)").matches;
+  return window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches;
 }
 
 function toHex(bytes) {
@@ -90,7 +90,7 @@ export default function MobileAppLock({ children }) {
   }, [config]);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 700px)");
+    const media = window.matchMedia("(max-width: 700px) and (pointer: coarse)");
     const update = () => setMobile(media.matches);
     media.addEventListener?.("change", update);
     return () => media.removeEventListener?.("change", update);

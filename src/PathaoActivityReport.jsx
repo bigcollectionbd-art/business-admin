@@ -36,8 +36,8 @@ export default function PathaoActivityReport() {
       const d = new Date();
       d.setHours(0, 0, 0, 0);
       d.setDate(d.getDate() - i);
-      const key = d.toLocaleDateString("en-CA");
-      days.push({ key, label: d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }), count: events.filter(e => new Date(e.event_at).toLocaleDateString("en-CA") === key).length });
+      const key = d.toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+      days.push({ key, label: d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }), count: events.filter(e => new Date(e.event_at).toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" }) === key).length });
     }
     return days;
   }, [events]);
@@ -52,6 +52,6 @@ export default function PathaoActivityReport() {
     {error && <p className="pathao-activity-error">{error}</p>}
     <div className="pathao-activity-chart">{daily.map(d => <div className="pathao-activity-day" key={d.key}><b>{d.count}</b><div className="pathao-activity-track"><i style={{height:`${d.count / max * 100}%`}}/></div><small>{d.label}</small></div>)}</div>
     <div className="pathao-activity-summary"><strong>{loading ? "—" : events.length}</strong><span>মোট Status Update</span><span>·</span><span>শুধু সংরক্ষিত বাস্তব update</span></div>
-    {loading ? <p className="pathao-activity-empty">Loading Pathao activity…</p> : events.length === 0 ? <p className="pathao-activity-empty">গত ৭ দিনে কোনো Status update রেকর্ড হয়নি।</p> : <div className="pathao-activity-table-wrap"><table><thead><tr><th>সময়</th><th>Invoice</th><th>Consignment</th><th>Pathao Status</th><th>সময় ধরন</th></tr></thead><tbody>{events.map(e => <tr key={e.id}><td>{new Date(e.event_at).toLocaleString("en-GB")}</td><td>{e.invoice_no}</td><td>{e.consignment_id || "—"}</td><td>{e.order_status || e.order_status_slug || "—"}</td><td>{e.event_time_source === "pathao_reported" ? "Pathao reported" : e.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</td></tr>)}</tbody></table></div>}
+    {loading ? <p className="pathao-activity-empty">Loading Pathao activity…</p> : events.length === 0 ? <p className="pathao-activity-empty">গত ৭ দিনে কোনো Status update রেকর্ড হয়নি।</p> : <div className="pathao-activity-table-wrap"><table><thead><tr><th>সময়</th><th>Invoice</th><th>Consignment</th><th>Pathao Status</th><th>সময় ধরন</th></tr></thead><tbody>{events.map(e => <tr key={e.id}><td>{new Date(e.event_at).toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })}</td><td>{e.invoice_no}</td><td>{e.consignment_id || "—"}</td><td>{e.order_status || e.order_status_slug || "—"}</td><td>{e.event_time_source === "pathao_reported" ? "Pathao reported" : e.event_time_source === "initial_snapshot" ? "Initial snapshot" : "System observed"}</td></tr>)}</tbody></table></div>}
   </section>;
 }

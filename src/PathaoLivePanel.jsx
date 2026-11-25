@@ -10,6 +10,7 @@ const groups = [
   { key: "transit", title: "ডেলিভারির পথে", desc: "পার্সেল গন্তব্যের পথে", icon: Truck },
   { key: "hold", title: "Hold-এ আছে", desc: "ডেলিভারি সাময়িকভাবে আটকে আছে", icon: PauseCircle },
   { key: "returned", title: "ফেরত এসেছে", desc: "ফেরত প্রক্রিয়ায় বা ফেরত সম্পন্ন", icon: RotateCcw },
+  { key: "assigned", title: "ডেলিভারির জন্য অ্যাসাইন", desc: "রাইডার/ডেলিভারি হাবে আছে—এখনো Delivered নয়", icon: Truck },
   { key: "delivered", title: "ডেলিভারি সম্পন্ন", desc: "কাস্টমারের কাছে পৌঁছেছে", icon: CheckCircle2 },
 ];
 
@@ -18,7 +19,8 @@ function classify(parcel) {
     .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
   if (/return|returned/.test(raw)) return "returned";
   if (/cancel/.test(raw)) return "cancelled";
-  if (/deliver/.test(raw)) return "delivered";
+  if (/\b(delivered|delivery completed|successfully delivered)\b/.test(raw)) return "delivered";
+  if (/ready for delivery|assigned for delivery|out for delivery|delivery assigned/.test(raw)) return "assigned";
   if (/hold|exception|damage|lost/.test(raw)) return "hold";
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
   if (/pickup|picked up|collected/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
@@ -133,7 +135,7 @@ export default function PathaoLivePanel() {
     const hs = history.filter(h => h.parcel_id === p.id);
     const items = saleItems.filter(item => item.sale_id === p.sale_id);
     const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-    const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /deliver/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     return <div className="pathao-full-details">
       <section className="pathao-detail-section">

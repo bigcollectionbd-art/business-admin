@@ -273,7 +273,7 @@ function App() {
             Customers
           </button>
 
-          {["owner", "admin"].includes(userRole) && (
+          {["owner", "admin", "staff"].includes(userRole) && (
             <button
               className={page === "expenses" ? "nav-item active" : "nav-item"}
               onClick={() => handlePageChange("expenses")}
@@ -373,7 +373,7 @@ function App() {
         {page === "invoice" && <Invoice />}
         {page === "products" && <Products />}
         {page === "customers" && <Customers />}
-        {page === "expenses" && ["owner", "admin"].includes(userRole) && <Expenses />}
+        {page === "expenses" && ["owner", "admin", "staff"].includes(userRole) && <Expenses />}
         {page === "settings" && userRole === "owner" && <SettingsPage />}
         {page === "reports" && <Reports />}
       </main>

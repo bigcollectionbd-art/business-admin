@@ -11,7 +11,7 @@ const groups = [
   { key: "hold", title: "Hold-এ আছে", desc: "ডেলিভারি সাময়িকভাবে আটকে আছে", icon: PauseCircle },
   { key: "assigned", title: "ডেলিভারির জন্য অ্যাসাইন", desc: "রাইডার/ডেলিভারি হাবে আছে—এখনো Delivered নয়", icon: Truck },
   { key: "delivered", title: "ডেলিভারি সম্পন্ন", desc: "কাস্টমারের কাছে পৌঁছেছে", icon: CheckCircle2 },
-  { key: "returned", title: "ফেরত এসেছে", desc: "ফেরত প্রক্রিয়ায় বা ফেরত সম্পন্ন", icon: RotateCcw },
+  { key: "returned", title: "ফেরত / Return", desc: "Merchant-এর কাছে ফেরত পৌঁছানো পর্যন্ত আপডেট", icon: RotateCcw },
 ];
 
 function classify(parcel) {
@@ -26,6 +26,24 @@ function classify(parcel) {
   if (/transit|out for delivery|received at|hub|sorting|assigned for delivery/.test(raw)) return "transit";
   if (/pickup/.test(raw) && !/pending|assigned for pickup|pickup pending/.test(raw)) return "picked";
   return "pending";
+}
+
+function isReturnedToMerchant(parcel) {
+  const current = [parcel.order_status, parcel.order_status_slug]
+    .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  return /returned to merchant|return to merchant|return delivered|return completed/.test(current);
+}
+
+function returnProgress(parcel) {
+  const current = [parcel.order_status, parcel.order_status_slug]
+    .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  if (isReturnedToMerchant(parcel)) {
+    return { title: parcel.order_status || parcel.order_status_slug, note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
+  }
+  return {
+    title: parcel.order_status || parcel.order_status_slug || "Return update pending",
+    note: "Pathao-এর সর্বশেষ Return Status এখানে দেখানো হচ্ছে। পরবর্তী আপডেট এলে স্বয়ংক্রিয়ভাবে পরিবর্তন হবে।",
+  };
 }
 
 function fmt(value) {
@@ -107,7 +125,8 @@ export default function PathaoLivePanel() {
 
       const activeOrRecent = allParcels.filter((p) => {
         const booked = p.booked_at || p.created_at;
-        return !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
+        const awaitingMerchantReturn = classify(p) === "returned" && !isReturnedToMerchant(p);
+        return awaitingMerchantReturn || !booked || new Date(booked) >= since || !["delivered", "returned", "cancelled"].includes(classify(p));
       });
       setParcels(activeOrRecent);
       setHistory(allHistory);
@@ -150,7 +169,16 @@ export default function PathaoLivePanel() {
     const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
     const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    const isReturnParcel = classify(p) === "returned";
+    const returnInfo = isReturnParcel ? returnProgress(p) : null;
     return <div className="pathao-full-details">
+      {isReturnParcel && <section className="pathao-detail-section">
+        <h4>Return Tracking</h4>
+        <div className="pathao-detail-grid">
+          <div><small>Return Status</small><strong>{returnInfo.title}</strong></div>
+          <div><small>Return Progress</small><strong>{returnInfo.note}</strong></div>
+        </div>
+      </section>}
       <section className="pathao-detail-section">
         <h4>Customer & Parcel Details</h4>
         <div className="pathao-detail-grid">

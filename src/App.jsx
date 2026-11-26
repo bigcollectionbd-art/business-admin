@@ -16,6 +16,7 @@ import {
 import { supabase } from "./supabase";
 import Login from "./Login";
 import MobileAppLock from "./MobileAppLock";
+import PushNotificationPrompt from "./PushNotificationPrompt";
 import Dashboard from "./Dashboard";
 import Sales from "./Sales";
 import Invoice from "./Invoice";
@@ -199,6 +200,7 @@ function App() {
   return (
     <MobileAppLock>
     <div className="admin-app">
+      {["owner", "admin"].includes(userRole) && <PushNotificationPrompt userRole={userRole} />}
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="logo">
           <div className="logo-icon">B</div>

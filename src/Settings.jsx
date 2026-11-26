@@ -9,6 +9,7 @@ import {
 import { supabase } from "./supabase";
 import "./Settings.css";
 
+
 // Restore order follows the database foreign-key relationships.
 // Pathao credentials (pathao_auth) and Auth accounts are intentionally excluded.
 const BACKUP_TABLES = [
@@ -45,6 +46,12 @@ function Settings() {
   const [adminCreating, setAdminCreating] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
   const [adminError, setAdminError] = useState("");
+
+  const [customTitle, setCustomTitle] = useState("");
+  const [customMessage, setCustomMessage] = useState("");
+  const [customSending, setCustomSending] = useState(false);
+  const [customResult, setCustomResult] = useState("");
+  const [customError, setCustomError] = useState("");
 
   const fileInputRef = useRef(null);
 
@@ -213,6 +220,42 @@ function Settings() {
     setProfileUpdating(null);
   }
 
+
+  async function handleSendCustomNotification(event) {
+    event.preventDefault();
+    setCustomResult("");
+    setCustomError("");
+    const title = customTitle.trim();
+    const message = customMessage.trim();
+    if (!title || !message) {
+      setCustomError("শিরোনাম ও মেসেজ লিখুন।");
+      return;
+    }
+    setCustomSending(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("লগইন সেশন পাওয়া যায়নি।");
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-push`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ kind: "custom", title, message }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Notification পাঠানো যায়নি।");
+      setCustomTitle("");
+      setCustomMessage("");
+      setCustomResult(`Notification পাঠানো হয়েছে। সফল: ${result.sent || 0}, বাতিল Subscription সরানো হয়েছে: ${result.removed || 0}, ব্যর্থ: ${result.failed || 0}`);
+    } catch (error) {
+      setCustomError(error.message || "Notification পাঠানো যায়নি।");
+    } finally {
+      setCustomSending(false);
+    }
+  }
+
   async function handleBackup() {
     setBackupLoading(true);
     setBackupMessage("");
@@ -341,6 +384,18 @@ function Settings() {
 
   return (
     <div className="settings-page">
+      <div className="settings-section custom-notification-section">
+        <h2>Send Custom Notification</h2>
+        <form onSubmit={handleSendCustomNotification}>
+          <label htmlFor="custom-notification-title">Title</label>
+          <input id="custom-notification-title" value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} maxLength={80} required placeholder="Notification title" />
+          <label htmlFor="custom-notification-message">Message</label>
+          <textarea id="custom-notification-message" value={customMessage} onChange={(event) => setCustomMessage(event.target.value)} maxLength={500} rows={4} required placeholder="Write your message" />
+          <button type="submit" className="settings-save-button" disabled={customSending}>{customSending ? "Sending..." : "Send to Everyone"}</button>
+        </form>
+        {customResult && <div className="settings-success">{customResult}</div>}
+        {customError && <div className="login-error">{customError}</div>}
+      </div>
 
       <div className="settings-section user-management-section">
         <h2>User Management</h2>

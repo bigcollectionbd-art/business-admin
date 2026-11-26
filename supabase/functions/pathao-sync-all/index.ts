@@ -105,6 +105,32 @@ Deno.serve(async (req: Request) => {
 
           if (changed) updated += 1;
           else unchanged += 1;
+
+          // Notify only when the status itself transitions into one of the three requested states.
+          const previousStatus = String(parcel.order_status_slug || parcel.order_status || "").toLowerCase().replace(/[^a-z]/g, "");
+          const currentStatus = String(orderStatusSlug || orderStatus || "").toLowerCase().replace(/[^a-z]/g, "");
+          const statusNotifications = {
+            delivered: { title: "Pathao Parcel Delivered", body: `${parcel.invoice_no} parcel has been delivered.` },
+            onhold: { title: "Pathao Parcel On Hold", body: `${parcel.invoice_no} parcel is now On Hold.` },
+            returned: { title: "Pathao Parcel Returned", body: `${parcel.invoice_no} parcel has been returned.` },
+            paidreturn: { title: "Pathao Parcel Returned", body: `${parcel.invoice_no} parcel has been returned.` },
+          };
+          const notification = statusNotifications[currentStatus];
+          if (notification && currentStatus !== previousStatus && pushSystemSecret) {
+            try {
+              await fetch(`${url}/functions/v1/send-push`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "x-push-secret": pushSystemSecret },
+                body: JSON.stringify({
+                  kind: "pathao_status",
+                  title: notification.title,
+                  message: notification.body,
+                }),
+              });
+            } catch (pushError) {
+              console.error("Pathao push notification failed:", pushError);
+            }
+          }
         } catch (error) {
           failures.push({
             invoice_no: parcel.invoice_no,

@@ -115,6 +115,7 @@ Deno.serve(async (req: Request) => {
             onhold: { title: "Pathao Parcel On Hold", body: `${parcel.invoice_no} parcel is now On Hold.` },
             returned: { title: "Pathao Parcel Returned", body: `${parcel.invoice_no} parcel has been returned.` },
             paidreturn: { title: "Pathao Parcel Returned", body: `${parcel.invoice_no} parcel has been returned.` },
+            return: { title: "Pathao Parcel Returned", body: `${parcel.invoice_no} parcel has been returned.` },
           };
           const notification = statusNotifications[currentStatus];
           if (notification && currentStatus !== previousStatus && pushSystemSecret) {

@@ -182,7 +182,7 @@ export default function PathaoLivePanel() {
       : p.tracking_updated_at;
     const items = saleItems.filter(item => item.sale_id === p.sale_id);
     const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-    const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\\b(delivered|delivery completed|successfully delivered)\\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
+    const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     return <div className="pathao-full-details">
       <section className="pathao-detail-section">

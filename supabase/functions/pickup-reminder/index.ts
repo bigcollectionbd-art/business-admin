@@ -13,12 +13,12 @@ Deno.serve(async (req: Request) => {
   if (!url || !serviceKey) return Response.json({ error: "Server configuration missing" }, { status: 500 });
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
-  // These are the Pathao states that mean a booked parcel is still awaiting pickup.
-  // Picked-up, in-transit, delivered, cancelled and returned parcels are excluded.
+  // The live database confirms Assigned_for_Pickup as the waiting-for-pickup slug.
+  // Other states are intentionally excluded until their exact Pathao meaning is confirmed.
   const { count, error } = await admin
     .from("pathao_parcels")
     .select("id", { count: "exact", head: true })
-    .in("order_status_slug", ["Pending", "pending", "Pickup_Requested", "pickup_requested", "Assigned_for_Pickup", "assigned_for_pickup"]);
+    .in("order_status_slug", ["Assigned_for_Pickup", "assigned_for_pickup"]);
   if (error) return Response.json({ error: "Could not check pending pickups." }, { status: 500 });
   if (!count) return Response.json({ success: true, waiting_for_pickup: 0, sent: 0 });
 

@@ -33,16 +33,17 @@ function isReturnedToMerchant(parcel) {
   return /returned to merchant|return to merchant|return delivered|return completed/.test(current);
 }
 
-function returnProgress(parcel) {
-  const current = [parcel.order_status, parcel.order_status_slug]
+function isReturnStartStatus(entry) {
+  const status = [entry?.order_status, entry?.order_status_slug]
     .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
-  if (isReturnedToMerchant(parcel)) {
-    return { title: parcel.order_status || parcel.order_status_slug, note: "পার্সেল Merchant-এর কাছে ফেরত পৌঁছেছে" };
-  }
-  return {
-    title: parcel.order_status || parcel.order_status_slug || "Return update pending",
-    note: "Pathao-এর সর্বশেষ Return Status এখানে দেখানো হচ্ছে। পরবর্তী আপডেট এলে স্বয়ংক্রিয়ভাবে পরিবর্তন হবে।",
-  };
+  return /paid return|return initiated|return requested|return request/.test(status)
+    && !/merchant/.test(status);
+}
+
+function isMerchantReturnProgressStatus(entry) {
+  const status = [entry?.order_status, entry?.order_status_slug]
+    .filter(Boolean).join(" ").toLowerCase().replaceAll("_", " ");
+  return /returning to merchant|returned to merchant|return to merchant|merchant return|return delivered|return completed|return.*(transit|hub|delivery)|(?:transit|hub|delivery).*return/.test(status);
 }
 
 function fmt(value) {
@@ -163,21 +164,27 @@ export default function PathaoLivePanel() {
   const closeDetails = () => { setSelected(null); setActiveParcel(null); };
 
   function renderParcelDetails(p) {
-    const hs = history.filter(h => h.parcel_id === p.id);
+    const parcelHistory = history.filter(h => h.parcel_id === p.id);
+    const isReturnParcel = classify(p) === "returned";
+    const returnStartEvent = isReturnParcel ? parcelHistory.find(isReturnStartStatus) : null;
+    const hs = isReturnParcel
+      ? returnStartEvent
+        ? parcelHistory.filter(h => h.event_at && new Date(h.event_at).getTime() <= new Date(returnStartEvent.event_at).getTime())
+        : parcelHistory.filter(h => !isMerchantReturnProgressStatus(h))
+      : parcelHistory;
+    const fallbackReturnStatus = [p.order_status, p.order_status_slug]
+      .find(status => status && !isMerchantReturnProgressStatus({ order_status: status }));
+    const displayedCurrentStatus = isReturnParcel
+      ? (returnStartEvent?.order_status || returnStartEvent?.order_status_slug || fallbackReturnStatus || "Paid Return")
+      : (p.order_status || p.order_status_slug || p.booking_status || "—");
+    const displayedLastUpdate = isReturnParcel
+      ? (returnStartEvent?.event_at || (isReturnStartStatus(p) ? p.tracking_updated_at : null))
+      : p.tracking_updated_at;
     const items = saleItems.filter(item => item.sale_id === p.sale_id);
     const totalQty = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
     const delivered = hs.find(h => h.event_time_source !== "initial_snapshot" && /\b(delivered|delivery completed|successfully delivered)\b/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
     const pickup = hs.find(h => h.event_time_source !== "initial_snapshot" && /picked|pickup complete|pickup done|collected/i.test([h.order_status,h.order_status_slug].filter(Boolean).join(" ").replaceAll("_", " ")));
-    const isReturnParcel = classify(p) === "returned";
-    const returnInfo = isReturnParcel ? returnProgress(p) : null;
     return <div className="pathao-full-details">
-      {isReturnParcel && <section className="pathao-detail-section">
-        <h4>Return Tracking</h4>
-        <div className="pathao-detail-grid">
-          <div><small>Return Status</small><strong>{returnInfo.title}</strong></div>
-          <div><small>Return Progress</small><strong>{returnInfo.note}</strong></div>
-        </div>
-      </section>}
       <section className="pathao-detail-section">
         <h4>Customer & Parcel Details</h4>
         <div className="pathao-detail-grid">
@@ -185,11 +192,11 @@ export default function PathaoLivePanel() {
           <div><small>Mobile Number</small><strong>{p.recipient_phone || "তথ্য পাওয়া যায়নি"}</strong></div>
           <div><small>Consignment ID</small><strong>{p.consignment_id || "—"}</strong></div>
           <div><small>COD Amount</small><strong>{p.cod_amount != null ? `৳${Number(p.cod_amount).toLocaleString("en-BD", { maximumFractionDigits: 2 })}` : "তথ্য পাওয়া যায়নি"}</strong></div>
-          <div><small>Current Status</small><strong>{p.order_status || p.order_status_slug || p.booking_status || "—"}</strong></div>
+          <div><small>Current Status</small><strong>{displayedCurrentStatus}</strong></div>
           <div><small>Booking Date</small><strong>{fmt(p.booked_at || p.created_at)}</strong></div>
           <div><small>Pickup Date</small><strong>{pickup ? fmt(pickup.event_at) : "Pathao থেকে Pickup date পাওয়া যায়নি"}</strong></div>
           {classify(p) === "delivered" && <div><small>Delivery Date</small><strong>{delivered ? fmt(delivered.event_at) : "Pathao থেকে Delivery date পাওয়া যায়নি"}</strong></div>}
-          <div><small>Last Pathao Update</small><strong>{fmt(p.tracking_updated_at)}</strong></div>
+          <div><small>Last Pathao Update</small><strong>{fmt(displayedLastUpdate)}</strong></div>
         </div>
       </section>
       <section className="pathao-detail-section">

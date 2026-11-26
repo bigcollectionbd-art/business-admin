@@ -384,7 +384,22 @@ function Settings() {
   }
 
   return (
-    <div className="settings-page">\n      <PushNotificationSetup />\n\n      <div className="settings-section custom-notification-section">\n        <h2>Send Custom Notification</h2>\n        <p className="backup-description">সব সক্রিয় টিম মেম্বারের Android ও iPhone ডিভাইসে পাঠানো হবে।</p>\n        <form onSubmit={handleSendCustomNotification}>\n          <label htmlFor="custom-notification-title">Title</label>\n          <input id="custom-notification-title" value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} maxLength={80} required placeholder="Notification title" />\n          <label htmlFor="custom-notification-message">Message</label>\n          <textarea id="custom-notification-message" value={customMessage} onChange={(event) => setCustomMessage(event.target.value)} maxLength={500} rows={4} required placeholder="Write your message" />\n          <button type="submit" className="settings-save-button" disabled={customSending}>{customSending ? "Sending..." : "Send to Everyone"}</button>\n        </form>\n        {customResult && <div className="settings-success">{customResult}</div>}\n        {customError && <div className="login-error">{customError}</div>}\n      </div>
+    <div className="settings-page">
+      <PushNotificationSetup />
+
+      <div className="settings-section custom-notification-section">
+        <h2>Send Custom Notification</h2>
+        <p className="backup-description">সব সক্রিয় টিম মেম্বারের Android ও iPhone ডিভাইসে পাঠানো হবে।</p>
+        <form onSubmit={handleSendCustomNotification}>
+          <label htmlFor="custom-notification-title">Title</label>
+          <input id="custom-notification-title" value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} maxLength={80} required placeholder="Notification title" />
+          <label htmlFor="custom-notification-message">Message</label>
+          <textarea id="custom-notification-message" value={customMessage} onChange={(event) => setCustomMessage(event.target.value)} maxLength={500} rows={4} required placeholder="Write your message" />
+          <button type="submit" className="settings-save-button" disabled={customSending}>{customSending ? "Sending..." : "Send to Everyone"}</button>
+        </form>
+        {customResult && <div className="settings-success">{customResult}</div>}
+        {customError && <div className="login-error">{customError}</div>}
+      </div>
 
       <div className="settings-section user-management-section">
         <h2>User Management</h2>

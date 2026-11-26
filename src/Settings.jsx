@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { supabase } from "./supabase";
 import "./Settings.css";
-import PushNotificationSetup from "./PushNotificationSetup";
 
 
 // Restore order follows the database foreign-key relationships.
@@ -385,11 +384,8 @@ function Settings() {
 
   return (
     <div className="settings-page">
-      <PushNotificationSetup />
-
       <div className="settings-section custom-notification-section">
         <h2>Send Custom Notification</h2>
-        <p className="backup-description">সব সক্রিয় টিম মেম্বারের Android ও iPhone ডিভাইসে পাঠানো হবে।</p>
         <form onSubmit={handleSendCustomNotification}>
           <label htmlFor="custom-notification-title">Title</label>
           <input id="custom-notification-title" value={customTitle} onChange={(event) => setCustomTitle(event.target.value)} maxLength={80} required placeholder="Notification title" />

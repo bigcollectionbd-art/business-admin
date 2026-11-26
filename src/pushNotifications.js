@@ -76,3 +76,28 @@ export async function disablePushNotifications() {
   const { error } = await supabase.from("notification_push_subscriptions").delete().eq("endpoint", endpoint);
   if (error) throw error;
 }
+
+
+export async function syncExistingPushSubscription() {
+  if (!( "serviceWorker" in navigator) || !( "PushManager" in window)) return false;
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  if (!subscription) return false;
+
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) return false;
+
+  const json = subscription.toJSON();
+  if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return false;
+
+  const { error } = await supabase.from("notification_push_subscriptions").upsert({
+    user_id: user.id,
+    endpoint: json.endpoint,
+    p256dh: json.keys.p256dh,
+    auth: json.keys.auth,
+    device_label: navigator.userAgent.slice(0, 180),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "endpoint" });
+  if (error) throw error;
+  return true;
+}

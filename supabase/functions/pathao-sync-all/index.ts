@@ -30,6 +30,7 @@ Deno.serve(async (req: Request) => {
     const url = Deno.env.get("SUPABASE_URL");
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const pathaoBaseUrl = (Deno.env.get("PATHAO_BASE_URL") || "https://api-hermes.pathao.com").replace(/\/+$/, "");
+    const pushSystemSecret = Deno.env.get("PUSH_SYSTEM_SECRET");
     if (!url || !serviceKey) return json({ success: false, error: "Supabase server configuration missing" }, 500);
 
     const admin = createClient(url, serviceKey, {

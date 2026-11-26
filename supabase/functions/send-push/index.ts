@@ -2,14 +2,13 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
-const json = (data: unknown, status = 200) =>
-  Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-push-secret",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+const json = (data: unknown, status = 200) =>
+  Response.json(data, { status, headers: { ...corsHeaders, "Cache-Control": "no-store" } });
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

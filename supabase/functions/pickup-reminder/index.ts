@@ -18,7 +18,7 @@ Deno.serve(async (req: Request) => {
   const { count, error } = await admin
     .from("pathao_parcels")
     .select("id", { count: "exact", head: true })
-    .in("order_status_slug", ["Pending", "Pickup_Requested", "Assigned_for_Pickup"]);
+    .in("order_status_slug", ["Pending", "pending", "Pickup_Requested", "pickup_requested", "Assigned_for_Pickup", "assigned_for_pickup"]);
   if (error) return Response.json({ error: "Could not check pending pickups." }, { status: 500 });
   if (!count) return Response.json({ success: true, waiting_for_pickup: 0, sent: 0 });
 
